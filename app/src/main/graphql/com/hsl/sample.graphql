@@ -1,0 +1,14 @@
+query Test {
+    stopsByRadius(lat: 60.206723, lon: 24.667192, radius: 500, feeds: ["HSL"]) {
+        edges {
+            node {
+                ... on stopAtDistance {
+                    stop {
+                        name
+                    }
+                }
+            }
+        }
+    }
+}
+
