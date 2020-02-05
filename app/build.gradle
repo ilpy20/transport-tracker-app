@@ -20,8 +20,16 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            resValue "string", "google_maps_key",
+                    (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
+        }
+
+        debug {
+            resValue "string", "google_maps_key",
+                    (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
         }
     }
+
 }
 
 dependencies {
@@ -36,6 +44,7 @@ dependencies {
     // If not already on your classpath, you might need the jetbrains annotations
     compileOnly("org.jetbrains:annotations:13.0")
     testCompileOnly("org.jetbrains:annotations:13.0")
+    implementation 'com.google.android.gms:play-services:12.0.1'
 }
 
 apollo {
