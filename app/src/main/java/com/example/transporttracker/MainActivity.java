@@ -5,11 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.ApolloSubscriptionCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.subscription.WebSocketSubscriptionTransport;
+import com.example.network.Networking;
+import com.example.transportmodel.TransportModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -21,24 +21,18 @@ import com.hsl.TransportSubscription;
 
 import org.jetbrains.annotations.NotNull;
 
-import okhttp3.OkHttpClient;
-
-
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
-    private static final String BASE_URL = "https://transport-tracker-graphql.herokuapp.com/graphql";
-    private static final String WEBSOCKET_URL = "wss://transport-tracker-graphql.herokuapp.com/graphql";
-
-    ApolloClient apolloClient;
     GoogleMap googleMap;
+    TransportModel transportModel;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initApolloClient();
         initMap();
 
+        transportModel = new TransportModel();
     }
 
     void initMap() {
@@ -48,16 +42,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
     }
 
-    void initApolloClient() {
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
 
-
-        apolloClient = ApolloClient.builder()
-                .serverUrl(BASE_URL)
-                .okHttpClient(okHttpClient)
-                .subscriptionTransportFactory(new WebSocketSubscriptionTransport.Factory(WEBSOCKET_URL, okHttpClient))
-                .build();
-    }
 
     public void onMapReady(final GoogleMap googleMap) {
         this.googleMap = googleMap;
@@ -83,42 +68,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng farLeft = googleMap.getProjection().getVisibleRegion().farLeft;
         LatLng nearRight = googleMap.getProjection().getVisibleRegion().nearRight;
 
-        TransportSubscription transportSubscription = TransportSubscription.builder()
-                .minLat(nearRight.latitude)
-                .minLon(farLeft.longitude)
-                .maxLat(farLeft.latitude)
-                .maxLon(nearRight.longitude)
-                .build();
-
-        apolloClient.subscribe(transportSubscription).execute(new ApolloSubscriptionCall.Callback<TransportSubscription.Data>() {
+        transportModel.subscribeToTransportEvents(farLeft, nearRight, new TransportModel.Callback() {
             @Override
-            public void onResponse(@NotNull Response<TransportSubscription.Data> response) {
-                System.out.println(response.data().transportEventsInArea().routeNumber());
-            }
-
-            @Override
-            public void onFailure(@NotNull ApolloException e) {
-                System.out.println(e);
+            public void onEvent(TransportSubscription.TransportEventsInArea transportEvent) {
 
             }
 
             @Override
-            public void onCompleted() {
+            public void onError(@NotNull ApolloException e) {
 
-            }
-
-            @Override
-            public void onTerminated() {
-
-            }
-
-            @Override
-            public void onConnected() {
-                System.out.println("Connected to subscription");
             }
         });
+    }
 
-//        TransportSubscription.builder()
+    void addTransportMarker(final TransportSubscription.TransportEventsInArea transportEvent) {
+        String uId =
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                googleMap.addMarker(
+                        new MarkerOptions().position(stopLocation).title(stop.name())
+                );
+            }
+        });
     }
 
     void addStopMarker(final TestQuery.Stop stop) {
@@ -141,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     void doQuery(LatLng latLng) {
         TestQuery testQuery = TestQuery.builder().lat(latLng.latitude).lon(latLng.longitude).build();
 
-        apolloClient.query(testQuery).enqueue(new ApolloCall.Callback<TestQuery.Data>() {
+        Networking.apollo().query(testQuery).enqueue(new ApolloCall.Callback<TestQuery.Data>() {
 
 
             @Override
