@@ -1,0 +1,11 @@
+{
+  "name": "TransportTracker GraphQL",
+  "schemaPath": "schema.json",
+  "extensions": {
+    "endpoints": {
+      "Default GraphQL Endpoint": {
+        "url": "https://transport-tracker-graphql.herokuapp.com/graphql"
+      }
+    }
+  }
+}
