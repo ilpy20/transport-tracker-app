@@ -6,16 +6,18 @@ import android.os.Bundle;
 
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.ApolloSubscriptionCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
+import com.apollographql.apollo.subscription.WebSocketSubscriptionTransport;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.hsl.TestQuery;
+import com.hsl.TransportSubscription;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +25,8 @@ import okhttp3.OkHttpClient;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
-    private static final String BASE_URL = "https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql";
+    private static final String BASE_URL = "https://transport-tracker-graphql.herokuapp.com/graphql";
+    private static final String WEBSOCKET_URL = "wss://transport-tracker-graphql.herokuapp.com/graphql";
 
     ApolloClient apolloClient;
     GoogleMap googleMap;
@@ -48,9 +51,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     void initApolloClient() {
         OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
 
+
         apolloClient = ApolloClient.builder()
                 .serverUrl(BASE_URL)
                 .okHttpClient(okHttpClient)
+                .subscriptionTransportFactory(new WebSocketSubscriptionTransport.Factory(WEBSOCKET_URL, okHttpClient))
                 .build();
     }
 
@@ -65,11 +70,55 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
-                doQuery(googleMap.getCameraPosition().target);
+//                doQuery(googleMap.getCameraPosition().target);
+                doSubscription();
+
             }
         });
 
-        this.doQuery(new LatLng(60.206723, 24.667192));
+//        this.doQuery(new LatLng(60.206723, 24.667192));
+    }
+
+    void doSubscription() {
+        LatLng farLeft = googleMap.getProjection().getVisibleRegion().farLeft;
+        LatLng nearRight = googleMap.getProjection().getVisibleRegion().nearRight;
+
+        TransportSubscription transportSubscription = TransportSubscription.builder()
+                .minLat(nearRight.latitude)
+                .minLon(farLeft.longitude)
+                .maxLat(farLeft.latitude)
+                .maxLon(nearRight.longitude)
+                .build();
+
+        apolloClient.subscribe(transportSubscription).execute(new ApolloSubscriptionCall.Callback<TransportSubscription.Data>() {
+            @Override
+            public void onResponse(@NotNull Response<TransportSubscription.Data> response) {
+                System.out.println(response.data().transportEventsInArea().routeNumber());
+            }
+
+            @Override
+            public void onFailure(@NotNull ApolloException e) {
+                System.out.println(e);
+
+            }
+
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onTerminated() {
+
+            }
+
+            @Override
+            public void onConnected() {
+                System.out.println("Connected to subscription");
+            }
+        });
+
+//        TransportSubscription.builder()
     }
 
     void addStopMarker(final TestQuery.Stop stop) {

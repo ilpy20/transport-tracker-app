@@ -15,3 +15,20 @@ query Test($lat:Float!, $lon: Float!){
     }
 }
 
+subscription Transport(
+    $minLat: Float!,
+    $minLon: Float!,
+    $maxLat: Float!,
+    $maxLon: Float!) {
+    transportEventsInArea(
+        minLat: $minLat
+        maxLat: $maxLat
+        minLon: $minLon
+        maxLon: $maxLon
+    ) {
+        lat,
+        lon,
+        routeNumber
+    }
+}
+
