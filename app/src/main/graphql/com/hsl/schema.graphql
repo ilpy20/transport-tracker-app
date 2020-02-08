@@ -26,9 +26,12 @@ subscription Transport(
         minLon: $minLon
         maxLon: $maxLon
     ) {
-        lat,
-        lon,
+        lat
+        lon
         routeNumber
+        heading
+        mode
+        id
     }
 }
 
