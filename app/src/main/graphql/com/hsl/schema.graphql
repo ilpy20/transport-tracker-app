@@ -14,6 +14,36 @@ query Test($lat:Float!, $lon: Float!){
         }
     }
 }
+query Stops($minLat:Float!, $minLon:Float!, $maxLat:Float!, $maxLon:Float!) {
+    stopsByBbox(minLat: $minLat,
+        minLon: $minLon,
+        maxLat: $maxLat,
+        maxLon: $maxLon) {
+        gtfsId
+        name
+        lat
+        lon
+        zoneId
+        vehicleMode
+        stoptimesForPatterns {
+            stoptimes {
+                scheduledDeparture
+                departureDelay
+                serviceDay
+                trip {
+                    routeShortName
+                    tripHeadsign
+                    pattern {
+                        route {
+                            mode
+                            color
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 subscription Transport(
     $minLat: Float!,
