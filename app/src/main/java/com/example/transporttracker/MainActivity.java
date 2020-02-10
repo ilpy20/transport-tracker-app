@@ -14,6 +14,7 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.example.network.Networking;
+import com.example.stopmodel.StopModel;
 import com.example.transportmodel.TransportModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,7 +25,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.hsl.TestQuery;
+import com.hsl.StopsQuery;
 import com.hsl.TransportSubscription;
 
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
   GoogleMap googleMap;
   TransportModel transportModel;
+  StopModel stopModel;
 
   HashMap<String, Marker> transportMarkers;
 
@@ -44,12 +46,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     initMap();
 
     transportModel = new TransportModel();
+    stopModel = new StopModel();
     transportMarkers = new HashMap<>();
   }
 
   void initMap() {
     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-      .findFragmentById(R.id.map);
+        .findFragmentById(R.id.map);
 
     mapFragment.getMapAsync(this);
   }
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
       @Override
       public void onCameraIdle() {
         doSubscription();
+        doQuery();
       }
     });
 
@@ -121,12 +125,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
   }
 
   void addTransportMarker(final TransportSubscription.TransportEventsInArea transportEvent) {
-    if(transportEvent == null) {
+    if (transportEvent == null) {
       return;
     }
     final LatLng position = new LatLng(
-      transportEvent.lat(),
-      transportEvent.lon()
+        transportEvent.lat(),
+        transportEvent.lon()
     );
 
 
@@ -139,11 +143,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
           existingMarker.setPosition(position);
         } else {
           Marker marker = googleMap.addMarker(
-            new MarkerOptions()
-              .position(position)
-              .title(transportEvent.routeNumber())
-              .anchor(0.5f, 0.5f)
-              .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
+              new MarkerOptions()
+                  .position(position)
+                  .title(transportEvent.routeNumber())
+                  .anchor(0.5f, 0.5f)
+                  .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
           );
           transportMarkers.put(transportEvent.id(), marker);
         }
@@ -151,10 +155,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     });
   }
 
-  void addStopMarker(final TestQuery.Stop stop) {
+  void addStopMarker(final StopsQuery.StopsByBbox stop) {
+    if (stop == null) {
+      return;
+    }
     final LatLng stopLocation = new LatLng(
-      stop.lat(),
-      stop.lon()
+        stop.lat(),
+        stop.lon()
     );
 
 
@@ -162,29 +169,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
       @Override
       public void run() {
         googleMap.addMarker(
-          new MarkerOptions().position(stopLocation).title(stop.name())
+            new MarkerOptions().position(stopLocation).title(stop.name())
         );
       }
     });
   }
 
-  void doQuery(LatLng latLng) {
-    TestQuery testQuery = TestQuery.builder().lat(latLng.latitude).lon(latLng.longitude).build();
 
-    Networking.apollo().query(testQuery).enqueue(new ApolloCall.Callback<TestQuery.Data>() {
+  void doQuery() {
+    LatLng farLeft = googleMap.getProjection().getVisibleRegion().farLeft;
+    LatLng nearRight = googleMap.getProjection().getVisibleRegion().nearRight;
 
-
+    stopModel.makeStops(farLeft, nearRight, new StopModel.Callback() {
       @Override
-      public void onResponse(@NotNull Response<TestQuery.Data> response) {
-        for (TestQuery.Edge edge : response.data().stopsByRadius().edges()) {
-          addStopMarker(edge.node().stop());
-        }
-
+      public void onStops(StopsQuery.StopsByBbox stops) {
+        addStopMarker(stops);
       }
 
       @Override
-      public void onFailure(@NotNull ApolloException e) {
-        System.out.println(e);
+      public void onError(@NotNull ApolloException e) {
+
       }
     });
   }
