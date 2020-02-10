@@ -57,7 +57,7 @@ public class TransportModel {
         );
     }
 
-    interface Callback {
+    public interface Callback {
         void onEvent(TransportSubscription.TransportEventsInArea transportEvent);
         void onError(@NotNull ApolloException e);
     }
