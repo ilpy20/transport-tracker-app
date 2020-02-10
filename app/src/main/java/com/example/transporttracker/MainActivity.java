@@ -168,9 +168,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     MainActivity.this.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        googleMap.addMarker(
-            new MarkerOptions().position(stopLocation).title(stop.name())
-        );
+        Marker existingMarker = transportMarkers.get(stop.id());
+
+        if (existingMarker != null) {
+          existingMarker.setPosition(stopLocation);
+        } else {
+          Marker marker = googleMap.addMarker(
+              new MarkerOptions()
+                  .position(stopLocation)
+                  .title(stop.name())
+                  .anchor(0.5f, 0.5f)
+                  .icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_icon))
+          );
+          transportMarkers.put(stop.id(), marker);
+        }
       }
     });
   }
