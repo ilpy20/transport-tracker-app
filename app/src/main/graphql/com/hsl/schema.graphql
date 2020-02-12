@@ -1,13 +1,28 @@
-query Test($lat:Float!, $lon: Float!){
-    stopsByRadius(lat: $lat, lon: $lon, radius: 1500, feeds: ["HSL"]) {
-        edges {
-            node {
-                ... on stopAtDistance {
-                    stop {
-                        lon
-                        lat
-                        name
-
+query Stops($minLat:Float!, $minLon:Float!, $maxLat:Float!, $maxLon:Float!) {
+    stopsByBbox(minLat: $minLat,
+        minLon: $minLon,
+        maxLat: $maxLat,
+        maxLon: $maxLon) {
+        id
+        gtfsId
+        name
+        lat
+        lon
+        zoneId
+        vehicleMode
+        stoptimesForPatterns {
+            stoptimes {
+                scheduledDeparture
+                departureDelay
+                serviceDay
+                trip {
+                    routeShortName
+                    tripHeadsign
+                    pattern {
+                        route {
+                            mode
+                            color
+                        }
                     }
                 }
             }
