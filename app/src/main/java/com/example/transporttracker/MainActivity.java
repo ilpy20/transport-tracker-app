@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     sheetBehavior_stops = BottomSheetBehavior.from(bottom_sheet_stops);*/
     ConstraintLayout bottom_sheet = findViewById(R.id.bottom_sheet);
     sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
+    sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     someName = findViewById(R.id.some_name);
   }
 
@@ -90,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
       @Override
       public boolean onMarkerClick(Marker marker) {
         title = marker.getTitle();
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        decorView.setSystemUiVisibility(uiOptions);
         //if(marker.)
         //Marker transportMarker = transportMarkers.get(marker);
         //Marker stopMarker = stopMarkers.get(marker);
@@ -210,6 +214,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
           );
+
+          marker.setTag(transportEvent);
           transportMarkers.put(transportEvent.id(), marker);
         }
       }
@@ -240,6 +246,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_icon))
           );
+
+          marker.setTag(stop);
           stopMarkers.put(stop.id(), marker);
         }
       }
