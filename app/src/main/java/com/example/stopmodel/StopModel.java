@@ -33,7 +33,7 @@ public class StopModel {
     });
   }
 
-  public void makeStops(LatLng farLeft, LatLng nearRight, StopModel.Callback callback) {
+  public void getStops(LatLng farLeft, LatLng nearRight, StopModel.Callback callback) {
     makeStopsQuery(
         initializeQuery(farLeft, nearRight),
         callback

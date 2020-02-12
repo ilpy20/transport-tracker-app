@@ -1,7 +1,9 @@
 package com.example.transporttracker;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,11 +12,10 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
-import com.example.network.Networking;
 import com.example.stopmodel.StopModel;
 import com.example.transportmodel.TransportModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hsl.StopsQuery;
 import com.hsl.TransportSubscription;
 
@@ -39,16 +41,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
   StopModel stopModel;
 
   HashMap<String, Marker> transportMarkers;
+  HashMap<String, Marker> stopMarkers;
+
+  BottomSheetBehavior sheetBehavior;
+  //private BottomSheetBehavior sheetBehavior_route;
+  //private LinearLayout bottom_sheet_route;
+  //private BottomSheetBehavior sheetBehavior_stops;
+  //private LinearLayout bottom_sheet_stops;
+  TextView someName;
+  String title = "";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     initMap();
-
     transportModel = new TransportModel();
     stopModel = new StopModel();
     transportMarkers = new HashMap<>();
+    stopMarkers = new HashMap<>();
+
+    /*bottom_sheet_route = findViewById(R.id.bottom_sheet_route);
+    sheetBehavior_route = BottomSheetBehavior.from(bottom_sheet_route);
+    bottom_sheet_stops = findViewById(R.id.bottom_sheet_stop);
+    sheetBehavior_stops = BottomSheetBehavior.from(bottom_sheet_stops);*/
+    ConstraintLayout bottom_sheet = findViewById(R.id.bottom_sheet);
+    sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
+    someName = findViewById(R.id.some_name);
   }
 
   void initMap() {
@@ -67,6 +86,49 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
     googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
 
+    googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+      @Override
+      public boolean onMarkerClick(Marker marker) {
+        title = marker.getTitle();
+        //if(marker.)
+        //Marker transportMarker = transportMarkers.get(marker);
+        //Marker stopMarker = stopMarkers.get(marker);
+        if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+          sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+          someName.setText(title);
+        } else {
+          sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+          someName.setText(title);
+        }
+        return false;
+      }
+      });
+    sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+      @Override
+      public void onStateChanged(@NonNull View bottomSheet, int newState) {
+        switch (newState){
+          case BottomSheetBehavior.STATE_HIDDEN:
+            break;
+          case BottomSheetBehavior.STATE_EXPANDED: {
+            someName.setText(title);
+          }
+          break;
+          case BottomSheetBehavior.STATE_COLLAPSED: {
+            someName.setText(title);
+          }
+          break;
+          case BottomSheetBehavior.STATE_DRAGGING:
+            break;
+          case BottomSheetBehavior.STATE_SETTLING:
+            break;
+        }
+      }
+
+      @Override
+      public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+      }
+    });
     googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
       @Override
       public void onCameraIdle() {
@@ -74,7 +136,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         doQuery();
       }
     });
-
   }
 
   void doSubscription() {
@@ -139,7 +200,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
       @Override
       public void run() {
         Marker existingMarker = transportMarkers.get(transportEvent.id());
-
         if (existingMarker != null) {
           existingMarker.setPosition(position);
         } else {
@@ -169,8 +229,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     MainActivity.this.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Marker existingMarker = transportMarkers.get(stop.id());
-
+        Marker existingMarker = stopMarkers.get(stop.id());
         if (existingMarker != null) {
           existingMarker.setPosition(stopLocation);
         } else {
@@ -181,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_icon))
           );
-          transportMarkers.put(stop.id(), marker);
+          stopMarkers.put(stop.id(), marker);
         }
       }
     });
@@ -192,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     LatLng farLeft = googleMap.getProjection().getVisibleRegion().farLeft;
     LatLng nearRight = googleMap.getProjection().getVisibleRegion().nearRight;
 
-    stopModel.makeStops(farLeft, nearRight, new StopModel.Callback() {
+    stopModel.getStops(farLeft, nearRight, new StopModel.Callback() {
       @Override
       public void onStops(StopsQuery.StopsByBbox stops) {
         addStopMarker(stops);
