@@ -96,8 +96,11 @@ public class MainActivity extends AppCompatActivity
 
   public void onMapReady(final GoogleMap googleMap) {
     this.googleMap = googleMap;
-    enableMyLocation();
-    //LatLng home = new LatLng(60.206723, 24.667192);
+    //enableMyLocation();
+    LatLng home = new LatLng(60.206723, 24.667192);
+    googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
+    googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
+
 
     googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
       @Override
@@ -280,7 +283,7 @@ public class MainActivity extends AppCompatActivity
     MainActivity.this.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Marker existingMarker = transportMarkers.get(stop.id());
+        Marker existingMarker = stopMarkers.get(stop.id());
 
         if (existingMarker != null) {
           existingMarker.setPosition(stopLocation);
@@ -292,7 +295,7 @@ public class MainActivity extends AppCompatActivity
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_icon))
           );
-          transportMarkers.put(stop.id(), marker);
+          stopMarkers.put(stop.id(), marker);
         }
       }
     });
