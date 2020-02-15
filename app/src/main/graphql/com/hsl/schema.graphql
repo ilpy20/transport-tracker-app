@@ -43,8 +43,7 @@ subscription Transport(
     ) {
         lat
         lon
-        routeNumber
-        heading
+        route
         mode
         id
     }
