@@ -94,28 +94,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     });
   }
 
-  PorterDuffColorFilter getFilter(String mode) {
-    @ColorInt Integer color;
-
-    switch (mode) {
-      default:
-      case "bus":
-        color = 0x4287f5;
-        break;
-      case "tram":
-        color = 0x54b835;
-        break;
-      case "train":
-        color = 0xb02eb0;
-        break;
-      case "metro":
-        color = 0xff8c00;
-        break;
-    }
-
-    return new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY);
-  }
-
   private BitmapDescriptor getMarkerIconFromDrawable(Drawable drawable) {
     Canvas canvas = new Canvas();
     Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
@@ -146,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
           Marker marker = googleMap.addMarker(
               new MarkerOptions()
                   .position(position)
-                  .title(transportEvent.routeNumber())
+                  .title(transportEvent.route())
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
           );
