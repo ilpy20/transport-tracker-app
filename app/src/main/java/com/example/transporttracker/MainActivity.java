@@ -59,13 +59,16 @@ public class MainActivity extends AppCompatActivity
   HashMap<String, Marker> transportMarkers;
   HashMap<String, Marker> stopMarkers;
 
-  BottomSheetBehavior sheetBehavior;
-  //private BottomSheetBehavior sheetBehavior_route;
+  //BottomSheetBehavior sheetBehavior;
+  BottomSheetBehavior sheetBehaviorRoute;
   //private LinearLayout bottom_sheet_route;
-  //private BottomSheetBehavior sheetBehavior_stops;
+  BottomSheetBehavior sheetBehaviorStop;
   //private LinearLayout bottom_sheet_stops;
-  TextView someName;
+  TextView stopName;
+  TextView routeName;
   String title = "";
+
+
 
 
   @Override
@@ -79,10 +82,17 @@ public class MainActivity extends AppCompatActivity
     transportMarkers = new HashMap<>();
     stopMarkers = new HashMap<>();
 
-    RelativeLayout bottom_sheet = findViewById(R.id.bottom_sheet);
-    sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
-    sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-    someName = findViewById(R.id.some_name);
+    RelativeLayout bottom_sheet_stop = findViewById(R.id.bottom_sheet_stop);
+    sheetBehaviorStop = BottomSheetBehavior.from(bottom_sheet_stop);
+    RelativeLayout bottom_sheet_route = findViewById(R.id.bottom_sheet_route);
+    sheetBehaviorRoute = BottomSheetBehavior.from(bottom_sheet_route);
+    //
+    //sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+    //
+    //sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+    stopName = findViewById(R.id.stop_name);
+    routeName = findViewById(R.id.route_name);
 
   }
 
@@ -109,28 +119,82 @@ public class MainActivity extends AppCompatActivity
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
         decorView.setSystemUiVisibility(uiOptions);
-        if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+        if(marker.getSnippet().equals("stop")){
+          //BottomSheetBehavior sheetBehaviorStop;
+
+          //sheetBehavior = sheetBehaviorStop;
+          if (sheetBehaviorStop.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehaviorStop.setState(BottomSheetBehavior.STATE_EXPANDED);
+            stopName.setText(title);
+          } else {
+            sheetBehaviorStop.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            stopName.setText(title);
+          }
+        }
+        else{
+          //BottomSheetBehavior sheetBehaviorRoute;
+
+          //sheetBehavior = sheetBehaviorRoute;
+          if (sheetBehaviorRoute.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehaviorRoute.setState(BottomSheetBehavior.STATE_EXPANDED);
+            routeName.setText(title);
+          } else {
+            sheetBehaviorRoute.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            routeName.setText(title);
+          }
+        }
+
+
+        /*if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
           sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
           someName.setText(title);
         } else {
           sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
           someName.setText(title);
-        }
+        }*/
         return false;
       }
     });
-    sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+
+    sheetBehaviorStop.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
       @Override
       public void onStateChanged(@NonNull View bottomSheet, int newState) {
         switch (newState) {
           case BottomSheetBehavior.STATE_HIDDEN:
             break;
           case BottomSheetBehavior.STATE_EXPANDED: {
-            someName.setText(title);
+            stopName.setText(title);
+            break;
+          }
+          case BottomSheetBehavior.STATE_COLLAPSED: {
+            stopName.setText(title);
+            break;
+          }
+          case BottomSheetBehavior.STATE_DRAGGING:
+            break;
+          case BottomSheetBehavior.STATE_SETTLING:
+            break;
+        }
+      }
+
+      @Override
+      public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+      }
+    });
+
+    sheetBehaviorRoute.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+      @Override
+      public void onStateChanged(@NonNull View bottomSheet, int newState) {
+        switch (newState) {
+          case BottomSheetBehavior.STATE_HIDDEN:
+            break;
+          case BottomSheetBehavior.STATE_EXPANDED: {
+            routeName.setText(title);
           }
           break;
           case BottomSheetBehavior.STATE_COLLAPSED: {
-            someName.setText(title);
+            routeName.setText(title);
           }
           break;
           case BottomSheetBehavior.STATE_DRAGGING:
@@ -145,6 +209,7 @@ public class MainActivity extends AppCompatActivity
 
       }
     });
+
     googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
       @Override
       public void onCameraIdle() {
@@ -155,8 +220,11 @@ public class MainActivity extends AppCompatActivity
     googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
       @Override
       public void onMapClick(LatLng latLng) {
-        if (sheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
-          sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        if (sheetBehaviorStop.getState() != BottomSheetBehavior.STATE_HIDDEN) {
+          sheetBehaviorStop.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+        if (sheetBehaviorRoute.getState() != BottomSheetBehavior.STATE_HIDDEN) {
+          sheetBehaviorRoute.setState(BottomSheetBehavior.STATE_HIDDEN);
         }
       }
     });
@@ -261,6 +329,7 @@ public class MainActivity extends AppCompatActivity
               new MarkerOptions()
                   .position(position)
                   .title(transportEvent.route())
+                  .snippet("route")
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
           );
@@ -292,6 +361,7 @@ public class MainActivity extends AppCompatActivity
               new MarkerOptions()
                   .position(stopLocation)
                   .title(stop.name())
+                  .snippet("stop")
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_icon))
           );
