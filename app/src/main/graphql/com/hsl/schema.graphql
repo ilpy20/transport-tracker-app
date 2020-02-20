@@ -8,23 +8,27 @@ query Stops($minLat:Float!, $minLon:Float!, $maxLat:Float!, $maxLon:Float!) {
         name
         lat
         lon
+    }
+}
+
+query StopDetails($id:String!) {
+    stop(id: $id) {
+        name
+        code
         zoneId
         vehicleMode
-        stoptimesForPatterns {
-            stoptimes {
-                scheduledDeparture
-                departureDelay
-                serviceDay
-                trip {
-                    routeShortName
-                    tripHeadsign
-                    pattern {
-                        route {
-                            mode
-                            color
-                        }
-                    }
-                }
+        platformCode
+        stoptimesWithoutPatterns {
+            scheduledArrival
+            realtimeArrival
+            arrivalDelay
+            scheduledDeparture
+            realtimeDeparture
+            departureDelay
+            headsign
+            trip {
+                gtfsId
+                routeShortName
             }
         }
     }
@@ -46,6 +50,30 @@ subscription Transport(
         route
         mode
         id
+        nextStop
+        stop
     }
 }
+
+query TransportDetails($id:String!) {
+    trip(id: $id) {
+        routeShortName
+        tripHeadsign
+        stoptimes {
+            stop {
+                name
+                gtfsId
+            }
+            scheduledArrival
+            realtimeArrival
+            arrivalDelay
+            scheduledDeparture
+            realtimeDeparture
+            departureDelay
+            realtimeState
+        }
+    }
+}
+
+
 
