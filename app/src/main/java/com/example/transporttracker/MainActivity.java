@@ -24,7 +24,9 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.example.network.Networking;
+import com.example.stopmodel.Stop;
 import com.example.stopmodel.StopModel;
+import com.example.transportmodel.Transport;
 import com.example.transportmodel.TransportModel;
 import com.example.transporttracker.PermissionUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -37,6 +39,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.hsl.StopDetailsQuery;
 import com.hsl.StopsQuery;
 import com.hsl.TransportSubscription;
 
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity
   GoogleMap googleMap;
   TransportModel transportModel;
   StopModel stopModel;
+  Stop stopDetails;
+  Transport transportDetails;
 
   HashMap<String, Marker> transportMarkers;
   HashMap<String, Marker> stopMarkers;
@@ -66,7 +71,7 @@ public class MainActivity extends AppCompatActivity
   //private LinearLayout bottom_sheet_stops;
   TextView stopName;
   TextView routeName;
-  String title = "";
+  //String title = "";
 
 
 
@@ -81,6 +86,8 @@ public class MainActivity extends AppCompatActivity
     stopModel = new StopModel();
     transportMarkers = new HashMap<>();
     stopMarkers = new HashMap<>();
+    stopDetails = new Stop();
+    transportDetails = new Transport();
 
     RelativeLayout bottom_sheet_stop = findViewById(R.id.bottom_sheet_stop);
     sheetBehaviorStop = BottomSheetBehavior.from(bottom_sheet_stop);
@@ -115,32 +122,32 @@ public class MainActivity extends AppCompatActivity
     googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
       @Override
       public boolean onMarkerClick(Marker marker) {
-        title = marker.getTitle();
+
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
         decorView.setSystemUiVisibility(uiOptions);
         if(marker.getSnippet().equals("stop")){
           //BottomSheetBehavior sheetBehaviorStop;
-
+          stopDetails.setStopName(marker.getTitle());
           //sheetBehavior = sheetBehaviorStop;
           if (sheetBehaviorStop.getState() != BottomSheetBehavior.STATE_EXPANDED) {
             sheetBehaviorStop.setState(BottomSheetBehavior.STATE_EXPANDED);
-            stopName.setText(title);
+            stopName.setText(stopDetails.getStopName());
           } else {
             sheetBehaviorStop.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            stopName.setText(title);
+            stopName.setText(stopDetails.getStopName());
           }
         }
         else{
           //BottomSheetBehavior sheetBehaviorRoute;
-
+          transportDetails.setRouteName(marker.getTitle());
           //sheetBehavior = sheetBehaviorRoute;
           if (sheetBehaviorRoute.getState() != BottomSheetBehavior.STATE_EXPANDED) {
             sheetBehaviorRoute.setState(BottomSheetBehavior.STATE_EXPANDED);
-            routeName.setText(title);
+            routeName.setText(transportDetails.getRouteName());
           } else {
             sheetBehaviorRoute.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            routeName.setText(title);
+            routeName.setText(transportDetails.getRouteName());
           }
         }
 
@@ -163,11 +170,11 @@ public class MainActivity extends AppCompatActivity
           case BottomSheetBehavior.STATE_HIDDEN:
             break;
           case BottomSheetBehavior.STATE_EXPANDED: {
-            stopName.setText(title);
+            stopName.setText(stopDetails.getStopName());
             break;
           }
           case BottomSheetBehavior.STATE_COLLAPSED: {
-            stopName.setText(title);
+            stopName.setText(stopDetails.getStopName());
             break;
           }
           case BottomSheetBehavior.STATE_DRAGGING:
@@ -190,11 +197,11 @@ public class MainActivity extends AppCompatActivity
           case BottomSheetBehavior.STATE_HIDDEN:
             break;
           case BottomSheetBehavior.STATE_EXPANDED: {
-            routeName.setText(title);
+            routeName.setText(transportDetails.getRouteName());
           }
           break;
           case BottomSheetBehavior.STATE_COLLAPSED: {
-            routeName.setText(title);
+            routeName.setText(transportDetails.getRouteName());
           }
           break;
           case BottomSheetBehavior.STATE_DRAGGING:
@@ -233,6 +240,7 @@ public class MainActivity extends AppCompatActivity
   /**
    * Enables the My Location layer if the fine location permission has been granted.
    */
+  /*
   private void enableMyLocation() {
     if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
         != PackageManager.PERMISSION_GRANTED) {
@@ -274,12 +282,12 @@ public class MainActivity extends AppCompatActivity
 
   /**
    * Displays a dialog with error message explaining that the location permission is missing.
-   */
+   *//*
   private void showMissingPermissionError() {
     PermissionUtils.PermissionDeniedDialog
         .newInstance(true).show(getSupportFragmentManager(), "dialog");
   }
-
+*/
 
   void doSubscription() {
     LatLng farLeft = googleMap.getProjection().getVisibleRegion().farLeft;
