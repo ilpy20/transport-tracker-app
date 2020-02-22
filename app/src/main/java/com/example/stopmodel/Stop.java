@@ -1,7 +1,45 @@
 package com.example.stopmodel;
 
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
+import com.example.network.Networking;
+import com.hsl.StopDetailsQuery;
+import com.hsl.StopsQuery;
+
+import org.jetbrains.annotations.NotNull;
+
+import okhttp3.Callback;
+
 public class Stop {
-  private String stopId;
+  private static StopDetailsQuery initializeQuery(String id){
+    return StopDetailsQuery.builder().id(id).build();
+  }
+
+  private static void makeStopDetailsQuery(StopDetailsQuery stopDetailsQuery, final Callback callback){
+    Networking.apollo().query(stopDetailsQuery).enqueue(new ApolloCall.Callback<StopDetailsQuery.Data>() {
+      @Override
+      public void onResponse(@NotNull Response<StopDetailsQuery.Data> response) {
+        callback.onStop(response.data());
+      }
+
+      @Override
+      public void onFailure(@NotNull ApolloException e) {
+        callback.onError(e);
+      }
+    });
+  }
+
+  public static void makeStop(String id, Callback callback){
+    makeStopDetailsQuery(initializeQuery(id),callback);
+  }
+
+  public interface Callback{
+    void onStop(StopDetailsQuery.Data stop);
+
+    void onError(@NotNull ApolloException e);
+  }
+  /*private String stopId;
   private String stopName;
   private String stopCode;
   private String zoneId;
@@ -55,5 +93,5 @@ public class Stop {
 
   public int getPlatformCode() {
     return platformCode;
-  }
+  }*/
 }

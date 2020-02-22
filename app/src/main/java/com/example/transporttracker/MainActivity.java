@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity
     implements
     OnMapReadyCallback,
     ActivityCompat.OnRequestPermissionsResultCallback {
-  private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-  private boolean mPermissionDenied = false;
+  //private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+  //private boolean mPermissionDenied = false;
 
 
   GoogleMap googleMap;
@@ -64,13 +64,16 @@ public class MainActivity extends AppCompatActivity
   HashMap<String, Marker> transportMarkers;
   HashMap<String, Marker> stopMarkers;
 
-  //BottomSheetBehavior sheetBehavior;
-  BottomSheetBehavior sheetBehaviorRoute;
+  BottomSheetBehavior sheetBehavior;
+  //BottomSheetBehavior sheetBehaviorRoute;
   //private LinearLayout bottom_sheet_route;
-  BottomSheetBehavior sheetBehaviorStop;
+  //BottomSheetBehavior sheetBehaviorStop;
   //private LinearLayout bottom_sheet_stops;
-  TextView stopName;
-  TextView routeName;
+  TextView name;
+  TextView code;
+  TextView zone;
+  TextView mode;
+  TextView platform;
   //String title = "";
 
 
@@ -79,6 +82,9 @@ public class MainActivity extends AppCompatActivity
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    View decorView = getWindow().getDecorView();
+    int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+    decorView.setSystemUiVisibility(uiOptions);
     setContentView(R.layout.activity_main);
     initMap();
 
@@ -89,17 +95,21 @@ public class MainActivity extends AppCompatActivity
     stopDetails = new Stop();
     transportDetails = new Transport();
 
-    RelativeLayout bottom_sheet_stop = findViewById(R.id.bottom_sheet_stop);
-    sheetBehaviorStop = BottomSheetBehavior.from(bottom_sheet_stop);
-    RelativeLayout bottom_sheet_route = findViewById(R.id.bottom_sheet_route);
-    sheetBehaviorRoute = BottomSheetBehavior.from(bottom_sheet_route);
+    RelativeLayout bottom_sheet = findViewById(R.id.bottom_sheet);
+    sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
+    //RelativeLayout bottom_sheet_route = findViewById(R.id.bottom_sheet_route);
+    //sheetBehaviorRoute = BottomSheetBehavior.from(bottom_sheet_route);
     //
-    //sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+    sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
     //
     //sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-    stopName = findViewById(R.id.stop_name);
-    routeName = findViewById(R.id.route_name);
+    name = findViewById(R.id.name);
+    code = findViewById(R.id.code);
+    zone = findViewById(R.id.zone);
+    mode = findViewById(R.id.mode);
+    platform = findViewById(R.id.platform);
+    //routeName = findViewById(R.id.route_name);
 
   }
 
@@ -122,51 +132,43 @@ public class MainActivity extends AppCompatActivity
     googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
       @Override
       public boolean onMarkerClick(Marker marker) {
-
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        decorView.setSystemUiVisibility(uiOptions);
         if(marker.getSnippet().equals("stop")){
+          doStopDetailsQuery(marker);
           //BottomSheetBehavior sheetBehaviorStop;
-          stopDetails.setStopName(marker.getTitle());
+          //stopDetails.setStopName(marker.getTitle());
+          //stopDetails.setStopCode();
+          //stopDetails.setZoneId();
+          //stopDetails.setVehicleMode();
+          //stopDetails.setPlatformCode();
           //sheetBehavior = sheetBehaviorStop;
-          if (sheetBehaviorStop.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-            sheetBehaviorStop.setState(BottomSheetBehavior.STATE_EXPANDED);
-            stopName.setText(stopDetails.getStopName());
+          if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            //name.setText();
           } else {
-            sheetBehaviorStop.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            stopName.setText(stopDetails.getStopName());
+            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            //name.setText(stopDetails.getStopName());
           }
         }
-        else{
+        /*else{
           //BottomSheetBehavior sheetBehaviorRoute;
           transportDetails.setRouteName(marker.getTitle());
           //sheetBehavior = sheetBehaviorRoute;
-          if (sheetBehaviorRoute.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-            sheetBehaviorRoute.setState(BottomSheetBehavior.STATE_EXPANDED);
-            routeName.setText(transportDetails.getRouteName());
+          if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            name.setText(transportDetails.getRouteName());
           } else {
-            sheetBehaviorRoute.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            routeName.setText(transportDetails.getRouteName());
+            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            name.setText(transportDetails.getRouteName());
           }
-        }
-
-
-        /*if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-          sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-          someName.setText(title);
-        } else {
-          sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-          someName.setText(title);
         }*/
         return false;
       }
     });
 
-    sheetBehaviorStop.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+    sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
       @Override
       public void onStateChanged(@NonNull View bottomSheet, int newState) {
-        switch (newState) {
+        /*switch (newState) {
           case BottomSheetBehavior.STATE_HIDDEN:
             break;
           case BottomSheetBehavior.STATE_EXPANDED: {
@@ -181,34 +183,7 @@ public class MainActivity extends AppCompatActivity
             break;
           case BottomSheetBehavior.STATE_SETTLING:
             break;
-        }
-      }
-
-      @Override
-      public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-      }
-    });
-
-    sheetBehaviorRoute.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-      @Override
-      public void onStateChanged(@NonNull View bottomSheet, int newState) {
-        switch (newState) {
-          case BottomSheetBehavior.STATE_HIDDEN:
-            break;
-          case BottomSheetBehavior.STATE_EXPANDED: {
-            routeName.setText(transportDetails.getRouteName());
-          }
-          break;
-          case BottomSheetBehavior.STATE_COLLAPSED: {
-            routeName.setText(transportDetails.getRouteName());
-          }
-          break;
-          case BottomSheetBehavior.STATE_DRAGGING:
-            break;
-          case BottomSheetBehavior.STATE_SETTLING:
-            break;
-        }
+        }*/
       }
 
       @Override
@@ -227,67 +202,12 @@ public class MainActivity extends AppCompatActivity
     googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
       @Override
       public void onMapClick(LatLng latLng) {
-        if (sheetBehaviorStop.getState() != BottomSheetBehavior.STATE_HIDDEN) {
-          sheetBehaviorStop.setState(BottomSheetBehavior.STATE_HIDDEN);
-        }
-        if (sheetBehaviorRoute.getState() != BottomSheetBehavior.STATE_HIDDEN) {
-          sheetBehaviorRoute.setState(BottomSheetBehavior.STATE_HIDDEN);
+        if (sheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
+          sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         }
       }
     });
   }
-
-  /**
-   * Enables the My Location layer if the fine location permission has been granted.
-   */
-  /*
-  private void enableMyLocation() {
-    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-        != PackageManager.PERMISSION_GRANTED) {
-      // Permission to access the location is missing.
-      PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
-          Manifest.permission.ACCESS_FINE_LOCATION, true);
-    } else if (googleMap != null) {
-      // Access to the location has been granted to the app.
-      googleMap.setMyLocationEnabled(true);
-    }
-  }
-
-  @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                         @NonNull int[] grantResults) {
-    if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
-      return;
-    }
-
-    if (PermissionUtils.isPermissionGranted(permissions, grantResults,
-        Manifest.permission.ACCESS_FINE_LOCATION)) {
-      // Enable the my location layer if the permission has been granted.
-      enableMyLocation();
-    } else {
-      // Display the missing permission error dialog when the fragments resume.
-      mPermissionDenied = true;
-    }
-  }
-
-  @Override
-  protected void onResumeFragments() {
-    super.onResumeFragments();
-    if (mPermissionDenied) {
-      // Permission was not granted, display error dialog.
-      showMissingPermissionError();
-      mPermissionDenied = false;
-    }
-  }
-
-  /**
-   * Displays a dialog with error message explaining that the location permission is missing.
-   *//*
-  private void showMissingPermissionError() {
-    PermissionUtils.PermissionDeniedDialog
-        .newInstance(true).show(getSupportFragmentManager(), "dialog");
-  }
-*/
 
   void doSubscription() {
     LatLng farLeft = googleMap.getProjection().getVisibleRegion().farLeft;
@@ -336,7 +256,7 @@ public class MainActivity extends AppCompatActivity
           Marker marker = googleMap.addMarker(
               new MarkerOptions()
                   .position(position)
-                  .title(transportEvent.route())
+                  .title(transportEvent.id())
                   .snippet("route")
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
@@ -368,7 +288,7 @@ public class MainActivity extends AppCompatActivity
           Marker marker = googleMap.addMarker(
               new MarkerOptions()
                   .position(stopLocation)
-                  .title(stop.name())
+                  .title(stop.gtfsId())
                   .snippet("stop")
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_icon))
@@ -388,6 +308,37 @@ public class MainActivity extends AppCompatActivity
       @Override
       public void onStops(StopsQuery.StopsByBbox stops) {
         addStopMarker(stops);
+      }
+
+      @Override
+      public void onError(@NotNull ApolloException e) {
+
+      }
+    });
+  }
+
+  void getStopDetails(final StopDetailsQuery.Data stop){
+    if(stop==null){
+      return;
+    }
+    MainActivity.this.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        name.setText(stop.stop().name());
+        code.setText(stop.stop().code());
+        zone.setText(stop.stop().zoneId());
+        mode.setText(stop.stop().vehicleMode().rawValue());
+        platform.setText(stop.stop().platformCode());
+      }
+    });
+
+  }
+  void doStopDetailsQuery(Marker marker){
+    String id = marker.getTitle();
+    Stop.makeStop(id, new Stop.Callback() {
+      @Override
+      public void onStop(StopDetailsQuery.Data stop) {
+        getStopDetails(stop);
       }
 
       @Override
