@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity
   TextView name;
   TextView code;
   TextView zone;
-  TextView mode;
+  //TextView mode;
   TextView platform;
   //String title = "";
 
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity
     name = findViewById(R.id.name);
     code = findViewById(R.id.code);
     zone = findViewById(R.id.zone);
-    mode = findViewById(R.id.mode);
+    //mode = findViewById(R.id.mode);
     platform = findViewById(R.id.platform);
     //routeName = findViewById(R.id.route_name);
 
@@ -327,8 +327,10 @@ public class MainActivity extends AppCompatActivity
         name.setText(stop.stop().name());
         code.setText(stop.stop().code());
         zone.setText(stop.stop().zoneId());
-        mode.setText(stop.stop().vehicleMode().rawValue());
-        platform.setText(stop.stop().platformCode());
+        //mode.setText(stop.stop().vehicleMode().rawValue());
+        if (stop.stop().platformCode() != null) {
+          platform.setText(stop.stop().platformCode());
+        }
       }
     });
 
