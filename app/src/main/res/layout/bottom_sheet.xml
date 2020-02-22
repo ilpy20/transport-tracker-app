@@ -20,55 +20,48 @@
             android:id="@+id/imageView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="mode"
             app:srcCompat="@drawable/transport_icon" />
 
         <TextView
             android:id="@+id/name"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
+            android:elegantTextHeight="true"
+            android:freezesText="false"
+            android:textAlignment="textStart"
             android:textColor="@color/design_default_color_primary_dark"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            app:autoSizeTextType="uniform" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elegantTextHeight="true"
+            android:freezesText="false"
+            android:lineSpacingExtra="8sp"
+            android:textAlignment="center"
+            android:textSize="12sp"
+            app:autoSizeTextType="uniform" />
 
-            <TextView
-                android:id="@+id/code"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </FrameLayout>
+        <TextView
+            android:id="@+id/zone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elegantTextHeight="true"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            app:autoSizeTextType="uniform" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/zone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/mode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/platform"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </FrameLayout>
+        <TextView
+            android:id="@+id/platform"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elegantTextHeight="true"
+            android:textAlignment="viewEnd"
+            android:textSize="14sp"
+            app:autoSizeTextType="uniform" />
 
     </LinearLayout>
 
