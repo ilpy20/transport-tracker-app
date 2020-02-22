@@ -8,10 +8,12 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -256,7 +258,7 @@ public class MainActivity extends AppCompatActivity
           Marker marker = googleMap.addMarker(
               new MarkerOptions()
                   .position(position)
-                  .title(transportEvent.id())
+                  .title(transportEvent.desi())
                   .snippet("route")
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
@@ -265,6 +267,14 @@ public class MainActivity extends AppCompatActivity
         }
       }
     });
+  }
+
+  Bitmap getStopIcon() {
+    int height = 24;
+    int width = 24;
+    BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable( R.drawable.stop_icon, getApplicationContext().getTheme());
+    Bitmap b = bitmapdraw.getBitmap();
+    return Bitmap.createScaledBitmap(b, width, height, false);
   }
 
   void addStopMarker(final StopsQuery.StopsByBbox stop) {
@@ -291,7 +301,7 @@ public class MainActivity extends AppCompatActivity
                   .title(stop.gtfsId())
                   .snippet("stop")
                   .anchor(0.5f, 0.5f)
-                  .icon(BitmapDescriptorFactory.fromResource(R.drawable.stop_icon))
+                  .icon(BitmapDescriptorFactory.fromBitmap(getStopIcon()))
           );
           stopMarkers.put(stop.id(), marker);
         }
