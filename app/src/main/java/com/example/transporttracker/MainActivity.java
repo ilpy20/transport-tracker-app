@@ -47,6 +47,7 @@ import com.hsl.TransportSubscription;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
@@ -134,8 +135,9 @@ public class MainActivity extends AppCompatActivity
     googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
       @Override
       public boolean onMarkerClick(Marker marker) {
-        if(marker.getSnippet().equals("stop")){
-          doStopDetailsQuery(marker);
+        String[] snippet = marker.getSnippet().split(" ");
+        if(snippet[1].equals("stop")){
+          doStopDetailsQuery(snippet[0]);
           //BottomSheetBehavior sheetBehaviorStop;
           //stopDetails.setStopName(marker.getTitle());
           //stopDetails.setStopCode();
@@ -259,7 +261,7 @@ public class MainActivity extends AppCompatActivity
               new MarkerOptions()
                   .position(position)
                   .title(transportEvent.desi())
-                  .snippet("route")
+                  .snippet(transportEvent.id()+" route")
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
           );
@@ -298,8 +300,8 @@ public class MainActivity extends AppCompatActivity
           Marker marker = googleMap.addMarker(
               new MarkerOptions()
                   .position(stopLocation)
-                  .title(stop.gtfsId())
-                  .snippet("stop")
+                  .title(stop.name())
+                  .snippet(stop.gtfsId()+" stop")
                   .anchor(0.5f, 0.5f)
                   .icon(BitmapDescriptorFactory.fromBitmap(getStopIcon()))
           );
@@ -345,8 +347,8 @@ public class MainActivity extends AppCompatActivity
     });
 
   }
-  void doStopDetailsQuery(Marker marker){
-    String id = marker.getTitle();
+  void doStopDetailsQuery(String id){
+    //String id = marker.getTitle();
     Stop.makeStop(id, new Stop.Callback() {
       @Override
       public void onStop(StopDetailsQuery.Data stop) {
