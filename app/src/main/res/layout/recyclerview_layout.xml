@@ -9,28 +9,28 @@
     android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/mode"
+        android:id="@+id/modeRV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
 
     <TextView
-        android:id="@+id/num"
+        android:id="@+id/numRV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/nameRV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/zone"
+        android:id="@+id/zoneRV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/time"
+        android:id="@+id/timeRV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

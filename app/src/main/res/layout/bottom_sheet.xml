@@ -27,10 +27,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
                 android:elegantTextHeight="true"
+                android:fontFamily="casual"
                 android:freezesText="false"
                 android:lineSpacingExtra="8sp"
                 android:textAlignment="center"
-                android:textSize="12sp"
+                android:textAllCaps="true"
+                android:textSize="24sp"
+                android:textStyle="bold"
                 app:autoSizeTextType="uniform" />
 
             <TextView
@@ -73,6 +76,7 @@
             android:orientation="horizontal">
 
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </LinearLayout>

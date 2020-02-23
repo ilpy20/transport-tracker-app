@@ -1,54 +1,73 @@
 package com.example.transporttracker;
 
+import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+
 
 import androidx.recyclerview.widget.RecyclerView;
 
-public class ListAdapter extends RecyclerView.Adapter<ListAdapter.MyViewHolder> {
-  private String[] mDataset;
+import java.util.ArrayList;
 
-  // Provide a reference to the views for each data item
-  // Complex data items may need more than one view per item, and
-  // you provide access to all the views for a data item in a view holder
+public class ListAdapter extends RecyclerView.Adapter<ListAdapter.MyViewHolder> {
+  private Context mContext;
+  private ArrayList<String> mMode;
+  private ArrayList<String> mNum;
+  private ArrayList<String> mName;
+  private ArrayList<String> mTime;
+
   public static class MyViewHolder extends RecyclerView.ViewHolder {
-    // each data item is just a string in this case
-    public TextView textView;
-    public MyViewHolder(TextView v) {
-      super(v);
-      textView = v;
+
+    TextView num;
+    TextView name;
+    ImageView imgMode;
+
+    public MyViewHolder(View itemView) {
+      super(itemView);
+
+      this.num = (TextView) itemView.findViewById(R.id.numRV);
+      this.name = (TextView) itemView.findViewById(R.id.nameRV);
+      this.imgMode = (ImageView) itemView.findViewById(R.id.modeRV);
     }
   }
 
-  // Provide a suitable constructor (depends on the kind of dataset)
-  public ListAdapter(String[] myDataset) {
-    mDataset = myDataset;
+  public ListAdapter(Context mContext,ArrayList<String> num,ArrayList<String> name) {
+    this.mContext = mContext;
+    //this.mMode = mode;
+    this.mNum = num;
+    this.mName = name;
   }
 
-  // Create new views (invoked by the layout manager)
   @Override
-  public ListAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
-    // create a new view
-    TextView v = (TextView) LayoutInflater.from(parent.getContext())
-        .inflate(R.layout.bottom_sheet, parent, false);
-    MyViewHolder vh = new MyViewHolder(v);
-    return vh;
+  public MyViewHolder onCreateViewHolder(final ViewGroup parent,
+                                         final int viewType) {
+    final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_layout, parent, false);
+    MyViewHolder myViewHolder = new MyViewHolder(view);
+    return myViewHolder;
   }
 
-  // Replace the contents of a view (invoked by the layout manager)
   @Override
-  public void onBindViewHolder(MyViewHolder holder, int position) {
-    // - get element from your dataset at this position
-    // - replace the contents of the view with that element
-    holder.textView.setText(mDataset[position]);
+  public void onBindViewHolder(final MyViewHolder holder, final int i) {
+    holder.num.setText(mNum.get(i));
+    holder.name.setText(mName.get(i));
+
+
+    holder.itemView.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Toast.makeText(mContext,"Position : "+i,Toast.LENGTH_LONG).show();
+      }
+    });
 
   }
 
-  // Return the size of your dataset (invoked by the layout manager)
   @Override
   public int getItemCount() {
-    return mDataset.length;
+    return mNum == null ? 0: mNum.size();
   }
 }
