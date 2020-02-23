@@ -8,6 +8,9 @@ query Stops($minLat:Float!, $minLon:Float!, $maxLat:Float!, $maxLon:Float!) {
         name
         lat
         lon
+        zoneId
+        platformCode
+        vehicleMode
     }
 }
 

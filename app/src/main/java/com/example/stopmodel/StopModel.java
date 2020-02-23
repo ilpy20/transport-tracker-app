@@ -9,6 +9,9 @@ import com.hsl.StopsQuery;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 public class StopModel {
   private StopsQuery initializeQuery(LatLng farLeft, LatLng nearRight) {
@@ -24,7 +27,16 @@ public class StopModel {
     Networking.apollo().query(stopsQuery).enqueue(new ApolloCall.Callback<StopsQuery.Data>() {
       @Override
       public void onResponse(@NotNull Response<StopsQuery.Data> response) {
-        for(StopsQuery.StopsByBbox box : response.data().stopsByBbox()){callback.onStops(box);}
+        StopsQuery.Data data = response.data();
+        if(data == null) return;
+
+        List<Stop> stops = data
+          .stopsByBbox()
+          .stream()
+          .map(stop -> new Stop(stop))
+          .collect(Collectors.toList());
+
+        callback.onStops(stops);
       }
 
       @Override
@@ -41,7 +53,7 @@ public class StopModel {
   }
 
   public interface Callback {
-    void onStops(StopsQuery.StopsByBbox stops);
+    void onStops(List<Stop> stops);
 
     void onError(@NotNull ApolloException e);
   }
