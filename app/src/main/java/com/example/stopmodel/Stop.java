@@ -11,6 +11,8 @@ import com.hsl.type.Mode;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ListIterator;
+
 import okhttp3.Callback;
 
 public class Stop {
@@ -22,23 +24,24 @@ public class Stop {
   private String zoneId;
   private Mode vehicleMode;
   private String platformCode;
+  private ListIterator<StopDetailsQuery.StoptimesWithoutPattern> nearbyRoutes;
 
   private static StopDetailsQuery initializeQuery(String id) {
     return StopDetailsQuery.builder().id(id).build();
   }
 
-  public Stop(StopsQuery.StopsByBbox stops) {
-    id = stops.id();
-    gtfsId = stops.gtfsId();
-    name = stops.name();
-    //code = stop.stop().code();
-    zoneId = stops.zoneId();
-    vehicleMode = stops.vehicleMode();
-    platformCode = stops.platformCode();
-    location = new LatLng(stops.lat(), stops.lon());
+  public Stop(StopsQuery.StopsByBbox stop) {
+    id = stop.id();
+    gtfsId = stop.gtfsId();
+    name = stop.name();
+    code = stop.code();
+    zoneId = stop.zoneId();
+    vehicleMode = stop.vehicleMode();
+    platformCode = stop.platformCode();
+    location = new LatLng(stop.lat(), stop.lon());
   }
   public Stop(StopDetailsQuery.Data stop){
-    code = stop.stop().code();
+    nearbyRoutes = stop.stop().stoptimesWithoutPatterns().listIterator();
   }
 
   public String getId() {
@@ -77,6 +80,9 @@ public class Stop {
     Networking.apollo().query(stopDetailsQuery).enqueue(new ApolloCall.Callback<StopDetailsQuery.Data>() {
       @Override
       public void onResponse(@NotNull Response<StopDetailsQuery.Data> response) {
+        StopDetailsQuery.Data data = response.data();
+        if(data==null)return;
+
         callback.onStop(response.data());
       }
 
