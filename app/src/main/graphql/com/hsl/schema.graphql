@@ -11,19 +11,6 @@ query Stops($minLat:Float!, $minLon:Float!, $maxLat:Float!, $maxLon:Float!) {
         zoneId
         platformCode
         vehicleMode
-        stoptimesWithoutPatterns {
-            scheduledArrival
-            realtimeArrival
-            arrivalDelay
-            scheduledDeparture
-            realtimeDeparture
-            departureDelay
-            headsign
-            trip {
-                gtfsId
-                routeShortName
-            }
-        }
     }
 }
 
