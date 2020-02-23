@@ -3,6 +3,8 @@ package com.example.transporttracker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -36,12 +38,16 @@ public class MainActivity extends AppCompatActivity
 
   TransportModel transportModel;
   StopModel stopModel;
+  Stop stop;
 
   BottomSheetBehavior sheetBehavior;
   TextView name;
   TextView code;
   TextView zone;
   TextView platform;
+
+  RecyclerView recyclerView;
+  ListAdapter listAdapter;
 
 
   @Override
@@ -82,6 +88,7 @@ public class MainActivity extends AppCompatActivity
 
   public void setMapListeners() {
     mapFragment.setOnMarkerClickListener(marker -> {
+
       if (marker.getSnippet().equals("stop")) {
         setBottomSheetStopDetails(marker);
         bottomSheetChecker();
@@ -96,6 +103,9 @@ public class MainActivity extends AppCompatActivity
     sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
       @Override
       public void onStateChanged(@NonNull View bottomSheet, int newState) {
+        if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+          sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
         /*switch (newState) {
           case BottomSheetBehavior.STATE_HIDDEN:
             break;
@@ -174,6 +184,7 @@ public class MainActivity extends AppCompatActivity
     this.runOnUiThread(()->{
       code.setText(transport.getRouteDisplayName());
       name.setText(transport.getRouteName());
+      zone.setText("");
     });
   }
 
@@ -194,20 +205,27 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
-  void getStopDetails(final StopDetailsQuery.Data stop) {
-    if (stop == null) {
+  void getStopDetails(final StopDetailsQuery.Data data) {
+    if (data == null) {
       return;
     }
 
+    stop.makeStopDetailsArrays(data);
+
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
-      //code.setText(stop.stop().code());
+      recyclerView = findViewById(R.id.recycler_view);
+      listAdapter = new ListAdapter(MainActivity.this,stop.getRouteNums(),stop.getRouteNames());
+      recyclerView.setLayoutManager(new LinearLayoutManager(this));
+      //recyclerView.setHasFixedSize(true);
+      recyclerView.setAdapter(listAdapter);
+
     });
 
   }
 
   void setBottomSheetStopDetails(Marker marker) {
-    Stop stop = (Stop) marker.getTag();
+    stop = (Stop) marker.getTag();
 
     this.runOnUiThread(() -> {
       code.setText(stop.getCode());
@@ -216,10 +234,11 @@ public class MainActivity extends AppCompatActivity
       platform.setText(stop.getPlatformCode());
     });
 
-    Stop.makeStop(stop.getId(), new Stop.Callback() {
+
+    Stop.makeStop(stop.getGtfsId(), stop, new Stop.Callback() {
       @Override
-      public void onStop(StopDetailsQuery.Data stop) {
-        getStopDetails(stop);
+      public void onStop(@NonNull StopDetailsQuery.Data data) {
+        getStopDetails(data);
       }
 
       @Override
