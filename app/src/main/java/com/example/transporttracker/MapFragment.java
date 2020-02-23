@@ -1,6 +1,8 @@
 package com.example.transporttracker;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -11,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.stopmodel.Stop;
 import com.example.transportmodel.Transport;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -25,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class MapFragment extends Fragment {
   private OnFragmentInteractionListener mListener;
@@ -88,10 +92,6 @@ public class MapFragment extends Fragment {
     googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
   }
 
-  public void setOnMarkerClickListener(GoogleMap.OnMarkerClickListener callback) {
-    googleMap.setOnMarkerClickListener(callback);
-  }
-
   public void addTransportMarker(final Transport transport) {
     LatLng position = transport.getLocation();
 
@@ -108,8 +108,44 @@ public class MapFragment extends Fragment {
           .anchor(0.5f, 0.5f)
           .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
       );
+
+      marker.setTag(transport);
       transportMarkers.put(transport.getId(), marker);
     }
+  }
+
+  public void addStopMarkers(List<Stop> stops) {
+    for(Stop stop: stops) {
+      addStopMarker(stop);
+    }
+  }
+
+  Bitmap getStopIcon() {
+    int height = 24;
+    int width = 24;
+    BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.stop_icon, getContext().getTheme());
+    Bitmap b = bitmapdraw.getBitmap();
+    return Bitmap.createScaledBitmap(b, width, height, false);
+  }
+
+  public void addStopMarker(Stop stop) {
+        Marker existingMarker = stopMarkers.get(stop.getId());
+
+        if (existingMarker != null) {
+          // Update info
+        } else {
+          Marker marker = googleMap.addMarker(
+              new MarkerOptions()
+                  .position(stop.getLocation())
+                  .title(stop.getName())
+                  .snippet("stop")
+                  .anchor(0.5f, 0.5f)
+                  .icon(BitmapDescriptorFactory.fromBitmap(getStopIcon()))
+          );
+
+          marker.setTag(stop);
+          stopMarkers.put(stop.getId(), marker);
+        }
   }
 
   public void setOnMapReadyListener(OnMapViewReadyCallback callback) {
@@ -120,12 +156,12 @@ public class MapFragment extends Fragment {
     }
   }
 
-  public void setOnCameraIdleListener(GoogleMap.OnCameraIdleListener callback) {
-    googleMap.setOnCameraIdleListener(callback);
+  public void setOnMarkerClickListener(GoogleMap.OnMarkerClickListener callback) {
+    googleMap.setOnMarkerClickListener(callback);
   }
 
-  public void setOnMapClickListenert(GoogleMap.OnMapClickListener callback) {
-    googleMap.setOnMapClickListener(callback);
+  public void setOnCameraIdleListener(GoogleMap.OnCameraIdleListener callback) {
+    googleMap.setOnCameraIdleListener(callback);
   }
 
   public VisibleRegion getMapBounds() {
