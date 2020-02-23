@@ -18,7 +18,7 @@ public class Stop {
   private String gtfsId;
   private LatLng location;
   private String name;
-  private int code;
+  private String code;
   private String zoneId;
   private Mode vehicleMode;
   private String platformCode;
@@ -27,15 +27,18 @@ public class Stop {
     return StopDetailsQuery.builder().id(id).build();
   }
 
-  public Stop(StopsQuery.StopsByBbox stop) {
-    id = stop.id();
-    gtfsId = stop.gtfsId();
-    name = stop.name();
-    code = stop.hashCode();
-    zoneId = stop.zoneId();
-    vehicleMode = stop.vehicleMode();
-    platformCode = stop.platformCode();
-    location = new LatLng(stop.lat(), stop.lon());
+  public Stop(StopsQuery.StopsByBbox stops) {
+    id = stops.id();
+    gtfsId = stops.gtfsId();
+    name = stops.name();
+    //code = stop.stop().code();
+    zoneId = stops.zoneId();
+    vehicleMode = stops.vehicleMode();
+    platformCode = stops.platformCode();
+    location = new LatLng(stops.lat(), stops.lon());
+  }
+  public Stop(StopDetailsQuery.Data stop){
+    code = stop.stop().code();
   }
 
   public String getId() {
@@ -54,7 +57,7 @@ public class Stop {
     return platformCode;
   }
 
-  public int getCode() {
+  public String getCode() {
     return code;
   }
 
