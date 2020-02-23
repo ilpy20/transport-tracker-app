@@ -73,8 +73,6 @@ public class MainActivity extends AppCompatActivity
 
 
   public void setMapListeners() {
-    //enableMyLocation();
-
     mapFragment.setOnMarkerClickListener(marker -> {
       if (marker.getSnippet().equals("stop")) {
         setBottomSheetStopDetails(marker);
