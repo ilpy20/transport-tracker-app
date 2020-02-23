@@ -1,17 +1,21 @@
 package com.example.transporttracker;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.stopmodel.Stop;
 import com.example.transportmodel.Transport;
@@ -31,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MapFragment extends Fragment {
+  private static final int MY_LOCATION_REQUEST_CODE = 1337;
   private OnFragmentInteractionListener mListener;
   private GoogleMap googleMap;
   private MapView mMapView;
@@ -51,7 +56,6 @@ public class MapFragment extends Fragment {
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
-    Log.d("debug", "createView");
     // Inflate the layout for this fragment
     View rootView = inflater.inflate(R.layout.fragment_map, container, false);
 
@@ -66,24 +70,49 @@ public class MapFragment extends Fragment {
       e.printStackTrace();
     }
 
-    mMapView.getMapAsync(new OnMapReadyCallback() {
-      @Override
-      public void onMapReady(GoogleMap mMap) {
-        googleMap = mMap;
+    mMapView.getMapAsync(mMap -> {
+      googleMap = mMap;
+      accessUserLocation();
 
-        // For showing a move to my location button
-//        googleMap.setMyLocationEnabled(true);
-
-        ready = true;
-        init();
-        if (mapReadyCallback != null) {
-          mapReadyCallback.onMapReady();
-        }
+      ready = true;
+      init();
+      if (mapReadyCallback != null) {
+        mapReadyCallback.onMapReady();
       }
     });
 
     return rootView;
 
+  }
+
+  private void accessUserLocation() {
+    if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+      == PackageManager.PERMISSION_GRANTED) {
+      Log.d("MapFragment", "Permission granted already");
+
+      googleMap.setMyLocationEnabled(true);
+    } else {
+
+      PermissionUtils.requestPermission(
+        (MainActivity) getActivity(),
+        MY_LOCATION_REQUEST_CODE,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        false);
+    }
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    Log.d("MapFragment", "Permission result");
+    if (requestCode == MY_LOCATION_REQUEST_CODE) {
+      if (permissions.length == 1 &&
+        permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
+        grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        googleMap.setMyLocationEnabled(true);
+      } else {
+        Toast.makeText(getContext(), "Could not get location", Toast.LENGTH_SHORT);
+      }
+    }
   }
 
   void init() {
@@ -115,7 +144,7 @@ public class MapFragment extends Fragment {
   }
 
   public void addStopMarkers(List<Stop> stops) {
-    for(Stop stop: stops) {
+    for (Stop stop : stops) {
       addStopMarker(stop);
     }
   }
@@ -129,23 +158,23 @@ public class MapFragment extends Fragment {
   }
 
   public void addStopMarker(Stop stop) {
-        Marker existingMarker = stopMarkers.get(stop.getId());
+    Marker existingMarker = stopMarkers.get(stop.getId());
 
-        if (existingMarker != null) {
-          // Update info
-        } else {
-          Marker marker = googleMap.addMarker(
-              new MarkerOptions()
-                  .position(stop.getLocation())
-                  .title(stop.getName())
-                  .snippet("stop")
-                  .anchor(0.5f, 0.5f)
-                  .icon(BitmapDescriptorFactory.fromBitmap(getStopIcon()))
-          );
+    if (existingMarker != null) {
+      // Update info
+    } else {
+      Marker marker = googleMap.addMarker(
+        new MarkerOptions()
+          .position(stop.getLocation())
+          .title(stop.getName())
+          .snippet("stop")
+          .anchor(0.5f, 0.5f)
+          .icon(BitmapDescriptorFactory.fromBitmap(getStopIcon()))
+      );
 
-          marker.setTag(stop);
-          stopMarkers.put(stop.getId(), marker);
-        }
+      marker.setTag(stop);
+      stopMarkers.put(stop.getId(), marker);
+    }
   }
 
   public void setOnMapReadyListener(OnMapViewReadyCallback callback) {
