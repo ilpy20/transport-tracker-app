@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity
 
     this.runOnUiThread(() -> {
       name.setText(stop.getName());
-      code.setText(Integer.toString(stop.getCode()));
+      code.setText(stop.getCode());
       zone.setText(stop.getZoneId());
       platform.setText(stop.getPlatformCode());
     });
