@@ -1,56 +1,31 @@
 package com.example.transporttracker;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
-import com.example.network.Networking;
 import com.example.stopmodel.Stop;
 import com.example.stopmodel.StopModel;
 import com.example.transportmodel.Transport;
 import com.example.transportmodel.TransportModel;
-import com.example.transporttracker.PermissionUtils;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hsl.StopDetailsQuery;
-import com.hsl.StopsQuery;
-import com.hsl.TransportSubscription;
+
+import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
   implements
@@ -92,8 +67,6 @@ public class MainActivity extends AppCompatActivity
 
     transportModel = new TransportModel();
     stopModel = new StopModel();
-
-    stopDetails = new Stop();
 
     RelativeLayout bottom_sheet = findViewById(R.id.bottom_sheet);
     sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
@@ -225,54 +198,12 @@ public class MainActivity extends AppCompatActivity
   }
 
   void handleTransportEvent(final Transport transport) {
-    this.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        mapFragment.addTransportMarker(transport);
-      }
-    });
+    this.runOnUiThread(() -> mapFragment.addTransportMarker(transport));
   }
 
-  Bitmap getStopIcon() {
-    int height = 24;
-    int width = 24;
-    BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.stop_icon, getApplicationContext().getTheme());
-    Bitmap b = bitmapdraw.getBitmap();
-    return Bitmap.createScaledBitmap(b, width, height, false);
+  void handleStopsResponse(final List<Stop> stops) {
+    MainActivity.this.runOnUiThread(() -> mapFragment.addStopMarkers(stops));
   }
-
-  void addStopMarker(final StopsQuery.StopsByBbox stop) {
-    if (stop == null) {
-      return;
-    }
-    final LatLng stopLocation = new LatLng(
-      stop.lat(),
-      stop.lon()
-    );
-
-
-//    MainActivity.this.runOnUiThread(new Runnable() {
-//      @Override
-//      public void run() {
-//        Marker existingMarker = stopMarkers.get(stop.id());
-//
-//        if (existingMarker != null) {
-//          existingMarker.setPosition(stopLocation);
-//        } else {
-//          Marker marker = googleMap.addMarker(
-//              new MarkerOptions()
-//                  .position(stopLocation)
-//                  .title(stop.gtfsId())
-//                  .snippet("stop")
-//                  .anchor(0.5f, 0.5f)
-//                  .icon(BitmapDescriptorFactory.fromBitmap(getStopIcon()))
-//          );
-//          stopMarkers.put(stop.id(), marker);
-//        }
-//      }
-//    });
-  }
-
 
   void doQuery() {
     VisibleRegion bounds = mapFragment.getMapBounds();
@@ -281,13 +212,12 @@ public class MainActivity extends AppCompatActivity
 
     stopModel.makeStops(farLeft, nearRight, new StopModel.Callback() {
       @Override
-      public void onStops(StopsQuery.StopsByBbox stops) {
-        addStopMarker(stops);
+      public void onStops(List<Stop> stops) {
+        handleStopsResponse(stops);
       }
 
       @Override
       public void onError(@NotNull ApolloException e) {
-
       }
     });
   }
@@ -296,16 +226,14 @@ public class MainActivity extends AppCompatActivity
     if (stop == null) {
       return;
     }
-    MainActivity.this.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        name.setText(stop.stop().name());
-        code.setText(stop.stop().code());
-        zone.setText(stop.stop().zoneId());
-        //mode.setText(stop.stop().vehicleMode().rawValue());
-        if (stop.stop().platformCode() != null) {
-          platform.setText(stop.stop().platformCode());
-        }
+
+    MainActivity.this.runOnUiThread(() -> {
+      name.setText(stop.stop().name());
+      code.setText(stop.stop().code());
+      zone.setText(stop.stop().zoneId());
+      //mode.setText(stop.stop().vehicleMode().rawValue());
+      if (stop.stop().platformCode() != null) {
+        platform.setText(stop.stop().platformCode());
       }
     });
 

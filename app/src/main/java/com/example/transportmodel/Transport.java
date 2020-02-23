@@ -45,27 +45,14 @@ public class Transport {
     return routeDisplayName;
   }
 
-  public void setRouteId(String routeId) {
-    this.routeId = routeId;
-  }
-
   public String getRouteId() {
     return routeId;
-  }
-
-  public void setRouteName(String routeName) {
-    this.routeName = routeName;
   }
 
   public String getRouteName() {
     return routeName;
   }
 
-
-
-  public void setNextStop(String nextStop) {
-    this.nextStop = nextStop;
-  }
 
   public String getNextStop() {
     return nextStop;
