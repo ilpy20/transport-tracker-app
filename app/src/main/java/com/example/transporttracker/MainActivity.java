@@ -16,6 +16,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -40,6 +41,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hsl.StopDetailsQuery;
 import com.hsl.StopsQuery;
@@ -48,23 +50,21 @@ import com.hsl.TransportSubscription;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
-    implements
-    OnMapReadyCallback,
-    ActivityCompat.OnRequestPermissionsResultCallback {
+  implements
+  ActivityCompat.OnRequestPermissionsResultCallback,
+  MapFragment.OnFragmentInteractionListener {
   //private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
   //private boolean mPermissionDenied = false;
 
+  MapFragment mapFragment;
 
-  GoogleMap googleMap;
   TransportModel transportModel;
   StopModel stopModel;
   Stop stopDetails;
   Transport transportDetails;
-
-  HashMap<String, Marker> transportMarkers;
-  HashMap<String, Marker> stopMarkers;
 
   BottomSheetBehavior sheetBehavior;
   //BottomSheetBehavior sheetBehaviorRoute;
@@ -79,8 +79,6 @@ public class MainActivity extends AppCompatActivity
   //String title = "";
 
 
-
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -88,14 +86,14 @@ public class MainActivity extends AppCompatActivity
     int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
     decorView.setSystemUiVisibility(uiOptions);
     setContentView(R.layout.activity_main);
+
+    mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_fragment);
     initMap();
 
     transportModel = new TransportModel();
     stopModel = new StopModel();
-    transportMarkers = new HashMap<>();
-    stopMarkers = new HashMap<>();
+
     stopDetails = new Stop();
-    transportDetails = new Transport();
 
     RelativeLayout bottom_sheet = findViewById(R.id.bottom_sheet);
     sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
@@ -116,25 +114,22 @@ public class MainActivity extends AppCompatActivity
   }
 
   void initMap() {
-    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-        .findFragmentById(R.id.map);
-
-    mapFragment.getMapAsync(this);
+    mapFragment.setOnMapReadyListener(new MapFragment.OnMapViewReadyCallback() {
+      @Override
+      public void onMapReady() {
+        setMapListeners();
+      }
+    });
   }
 
 
-  public void onMapReady(final GoogleMap googleMap) {
-    this.googleMap = googleMap;
+  public void setMapListeners() {
     //enableMyLocation();
-    LatLng home = new LatLng(60.206723, 24.667192);
-    googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
-    googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
 
-
-    googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+    mapFragment.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
       @Override
       public boolean onMarkerClick(Marker marker) {
-        if(marker.getSnippet().equals("stop")){
+        if (marker.getSnippet().equals("stop")) {
           doStopDetailsQuery(marker);
           //BottomSheetBehavior sheetBehaviorStop;
           //stopDetails.setStopName(marker.getTitle());
@@ -194,14 +189,14 @@ public class MainActivity extends AppCompatActivity
       }
     });
 
-    googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+    mapFragment.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
       @Override
       public void onCameraIdle() {
         doSubscription();
         doQuery();
       }
     });
-    googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+    mapFragment.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
       @Override
       public void onMapClick(LatLng latLng) {
         if (sheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
@@ -212,13 +207,14 @@ public class MainActivity extends AppCompatActivity
   }
 
   void doSubscription() {
-    LatLng farLeft = googleMap.getProjection().getVisibleRegion().farLeft;
-    LatLng nearRight = googleMap.getProjection().getVisibleRegion().nearRight;
+    VisibleRegion bounds = mapFragment.getMapBounds();
+    LatLng farLeft = bounds.farLeft;
+    LatLng nearRight = bounds.nearRight;
 
     transportModel.subscribeToTransportEvents(farLeft, nearRight, new TransportModel.Callback() {
       @Override
-      public void onEvent(TransportSubscription.TransportEventsInArea transportEvent) {
-        addTransportMarker(transportEvent);
+      public void onEvent(Transport transport) {
+        handleTransportEvent(transport);
       }
 
       @Override
@@ -228,43 +224,11 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
-  private BitmapDescriptor getMarkerIconFromDrawable(Drawable drawable) {
-    Canvas canvas = new Canvas();
-    Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-    canvas.setBitmap(bitmap);
-    drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-    drawable.draw(canvas);
-    return BitmapDescriptorFactory.fromBitmap(bitmap);
-  }
-
-  void addTransportMarker(final TransportSubscription.TransportEventsInArea transportEvent) {
-    if (transportEvent == null) {
-      return;
-    }
-    final LatLng position = new LatLng(
-        transportEvent.lat(),
-        transportEvent.lon()
-    );
-
-
-    MainActivity.this.runOnUiThread(new Runnable() {
+  void handleTransportEvent(final Transport transport) {
+    this.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        Marker existingMarker = transportMarkers.get(transportEvent.id());
-
-        if (existingMarker != null) {
-          existingMarker.setPosition(position);
-        } else {
-          Marker marker = googleMap.addMarker(
-              new MarkerOptions()
-                  .position(position)
-                  .title(transportEvent.desi())
-                  .snippet("route")
-                  .anchor(0.5f, 0.5f)
-                  .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
-          );
-          transportMarkers.put(transportEvent.id(), marker);
-        }
+        mapFragment.addTransportMarker(transport);
       }
     });
   }
@@ -272,7 +236,7 @@ public class MainActivity extends AppCompatActivity
   Bitmap getStopIcon() {
     int height = 24;
     int width = 24;
-    BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable( R.drawable.stop_icon, getApplicationContext().getTheme());
+    BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.stop_icon, getApplicationContext().getTheme());
     Bitmap b = bitmapdraw.getBitmap();
     return Bitmap.createScaledBitmap(b, width, height, false);
   }
@@ -282,37 +246,38 @@ public class MainActivity extends AppCompatActivity
       return;
     }
     final LatLng stopLocation = new LatLng(
-        stop.lat(),
-        stop.lon()
+      stop.lat(),
+      stop.lon()
     );
 
 
-    MainActivity.this.runOnUiThread(new Runnable() {
-      @Override
-      public void run() {
-        Marker existingMarker = stopMarkers.get(stop.id());
-
-        if (existingMarker != null) {
-          existingMarker.setPosition(stopLocation);
-        } else {
-          Marker marker = googleMap.addMarker(
-              new MarkerOptions()
-                  .position(stopLocation)
-                  .title(stop.gtfsId())
-                  .snippet("stop")
-                  .anchor(0.5f, 0.5f)
-                  .icon(BitmapDescriptorFactory.fromBitmap(getStopIcon()))
-          );
-          stopMarkers.put(stop.id(), marker);
-        }
-      }
-    });
+//    MainActivity.this.runOnUiThread(new Runnable() {
+//      @Override
+//      public void run() {
+//        Marker existingMarker = stopMarkers.get(stop.id());
+//
+//        if (existingMarker != null) {
+//          existingMarker.setPosition(stopLocation);
+//        } else {
+//          Marker marker = googleMap.addMarker(
+//              new MarkerOptions()
+//                  .position(stopLocation)
+//                  .title(stop.gtfsId())
+//                  .snippet("stop")
+//                  .anchor(0.5f, 0.5f)
+//                  .icon(BitmapDescriptorFactory.fromBitmap(getStopIcon()))
+//          );
+//          stopMarkers.put(stop.id(), marker);
+//        }
+//      }
+//    });
   }
 
 
   void doQuery() {
-    LatLng farLeft = googleMap.getProjection().getVisibleRegion().farLeft;
-    LatLng nearRight = googleMap.getProjection().getVisibleRegion().nearRight;
+    VisibleRegion bounds = mapFragment.getMapBounds();
+    LatLng farLeft = bounds.farLeft;
+    LatLng nearRight = bounds.nearRight;
 
     stopModel.makeStops(farLeft, nearRight, new StopModel.Callback() {
       @Override
@@ -327,8 +292,8 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
-  void getStopDetails(final StopDetailsQuery.Data stop){
-    if(stop==null){
+  void getStopDetails(final StopDetailsQuery.Data stop) {
+    if (stop == null) {
       return;
     }
     MainActivity.this.runOnUiThread(new Runnable() {
@@ -345,7 +310,8 @@ public class MainActivity extends AppCompatActivity
     });
 
   }
-  void doStopDetailsQuery(Marker marker){
+
+  void doStopDetailsQuery(Marker marker) {
     String id = marker.getTitle();
     Stop.makeStop(id, new Stop.Callback() {
       @Override
@@ -358,5 +324,10 @@ public class MainActivity extends AppCompatActivity
 
       }
     });
+  }
+
+  @Override
+  public void onFragmentInteraction(Uri uri) {
+
   }
 }

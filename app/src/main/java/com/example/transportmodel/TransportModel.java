@@ -11,9 +11,17 @@ import com.hsl.TransportSubscription;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+
 public class TransportModel {
   private static final float COORDINATE_PADDING = 0.01f;
   private ApolloSubscriptionCall<TransportSubscription.Data> subscriptionInstance = null;
+
+  private HashMap<String, Transport> transportPool;
+
+  public TransportModel() {
+    transportPool = new HashMap<>();
+  }
 
   private TransportSubscription initializeSubscription(LatLng farLeft, LatLng nearRight) {
     return TransportSubscription.builder()
@@ -31,7 +39,11 @@ public class TransportModel {
     subscriptionInstance.execute(new ApolloSubscriptionCall.Callback<TransportSubscription.Data>() {
       @Override
       public void onResponse(@NotNull Response<TransportSubscription.Data> response) {
-        callback.onEvent(response.data().transportEventsInArea());
+        TransportSubscription.TransportEventsInArea event = response.data().transportEventsInArea();
+        if(event == null) return;
+
+        Transport transport = saveTransportData(response.data().transportEventsInArea());
+        callback.onEvent(transport);
       }
 
       @Override
@@ -56,6 +68,18 @@ public class TransportModel {
     });
   }
 
+  private Transport saveTransportData(TransportSubscription.TransportEventsInArea transportEvent) {
+    Transport transport = transportPool.get(transportEvent.id());
+
+    if(transport != null) {
+      transport.updateFromEvent(transportEvent);
+    } else {
+      transport = new Transport(transportEvent);
+    }
+
+    return transport;
+  }
+
   public void subscribeToTransportEvents(LatLng farLeft, LatLng nearRight, Callback callback) {
     if (subscriptionInstance != null) {
       terminateSubscription();
@@ -73,7 +97,7 @@ public class TransportModel {
   }
 
   public interface Callback {
-    void onEvent(TransportSubscription.TransportEventsInArea transportEvent);
+    void onEvent(Transport transport);
 
     void onError(@NotNull ApolloException e);
   }
