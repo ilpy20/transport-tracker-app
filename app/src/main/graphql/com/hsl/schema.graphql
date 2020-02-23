@@ -5,6 +5,7 @@ query Stops($minLat:Float!, $minLon:Float!, $maxLat:Float!, $maxLon:Float!) {
         maxLon: $maxLon) {
         id
         gtfsId
+        code
         name
         lat
         lon

@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hsl.StopDetailsQuery;
+import com.hsl.TransportDetailsQuery;
 
 import java.util.List;
 
@@ -71,19 +72,23 @@ public class MainActivity extends AppCompatActivity
     mapFragment.setOnMapReadyListener(() -> setMapListeners());
   }
 
+  void bottomSheetChecker(){
+    if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+      sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    } else {
+      sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+  }
 
   public void setMapListeners() {
     mapFragment.setOnMarkerClickListener(marker -> {
       if (marker.getSnippet().equals("stop")) {
         setBottomSheetStopDetails(marker);
-
-        if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-          sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        } else {
-          sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        }
-
-
+        bottomSheetChecker();
+      }
+      else{
+        setBottomSheetTransportDetails(marker);
+        bottomSheetChecker();
       }
       return false;
     });
@@ -153,6 +158,25 @@ public class MainActivity extends AppCompatActivity
     MainActivity.this.runOnUiThread(() -> mapFragment.addStopMarkers(stops));
   }
 
+  void getTransportDetails(final TransportDetailsQuery.Data transport){
+    if(transport==null){
+      return;
+    }
+
+    MainActivity.this.runOnUiThread(()->{
+      //Set additional info about transport
+    });
+  }
+
+  void setBottomSheetTransportDetails(Marker marker){
+    Transport transport = (Transport) marker.getTag();
+
+    this.runOnUiThread(()->{
+      code.setText(transport.getRouteDisplayName());
+      name.setText(transport.getRouteName());
+    });
+  }
+
   void doQuery() {
     VisibleRegion bounds = mapFragment.getMapBounds();
     LatLng farLeft = bounds.farLeft;
@@ -177,6 +201,7 @@ public class MainActivity extends AppCompatActivity
 
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
+      //code.setText(stop.stop().code());
     });
 
   }
@@ -185,8 +210,8 @@ public class MainActivity extends AppCompatActivity
     Stop stop = (Stop) marker.getTag();
 
     this.runOnUiThread(() -> {
-      name.setText(stop.getName());
       code.setText(stop.getCode());
+      name.setText(stop.getName());
       zone.setText(stop.getZoneId());
       platform.setText(stop.getPlatformCode());
     });
