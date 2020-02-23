@@ -26,32 +26,21 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
-
 public class MainActivity extends AppCompatActivity
   implements
   ActivityCompat.OnRequestPermissionsResultCallback,
   MapFragment.OnFragmentInteractionListener {
-  //private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-  //private boolean mPermissionDenied = false;
 
   MapFragment mapFragment;
 
   TransportModel transportModel;
   StopModel stopModel;
-  Stop stopDetails;
-  Transport transportDetails;
 
   BottomSheetBehavior sheetBehavior;
-  //BottomSheetBehavior sheetBehaviorRoute;
-  //private LinearLayout bottom_sheet_route;
-  //BottomSheetBehavior sheetBehaviorStop;
-  //private LinearLayout bottom_sheet_stops;
   TextView name;
   TextView code;
   TextView zone;
-  //TextView mode;
   TextView platform;
-  //String title = "";
 
 
   @Override
@@ -70,69 +59,35 @@ public class MainActivity extends AppCompatActivity
 
     RelativeLayout bottom_sheet = findViewById(R.id.bottom_sheet);
     sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
-    //RelativeLayout bottom_sheet_route = findViewById(R.id.bottom_sheet_route);
-    //sheetBehaviorRoute = BottomSheetBehavior.from(bottom_sheet_route);
-    //
     sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
-    //
-    //sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     name = findViewById(R.id.name);
     code = findViewById(R.id.code);
     zone = findViewById(R.id.zone);
-    //mode = findViewById(R.id.mode);
     platform = findViewById(R.id.platform);
-    //routeName = findViewById(R.id.route_name);
-
   }
 
   void initMap() {
-    mapFragment.setOnMapReadyListener(new MapFragment.OnMapViewReadyCallback() {
-      @Override
-      public void onMapReady() {
-        setMapListeners();
-      }
-    });
+    mapFragment.setOnMapReadyListener(() -> setMapListeners());
   }
 
 
   public void setMapListeners() {
     //enableMyLocation();
 
-    mapFragment.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-      @Override
-      public boolean onMarkerClick(Marker marker) {
-        if (marker.getSnippet().equals("stop")) {
-          doStopDetailsQuery(marker);
-          //BottomSheetBehavior sheetBehaviorStop;
-          //stopDetails.setStopName(marker.getTitle());
-          //stopDetails.setStopCode();
-          //stopDetails.setZoneId();
-          //stopDetails.setVehicleMode();
-          //stopDetails.setPlatformCode();
-          //sheetBehavior = sheetBehaviorStop;
-          if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            //name.setText();
-          } else {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            //name.setText(stopDetails.getStopName());
-          }
+    mapFragment.setOnMarkerClickListener(marker -> {
+      if (marker.getSnippet().equals("stop")) {
+        setBottomSheetStopDetails(marker);
+
+        if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+          sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        } else {
+          sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
-        /*else{
-          //BottomSheetBehavior sheetBehaviorRoute;
-          transportDetails.setRouteName(marker.getTitle());
-          //sheetBehavior = sheetBehaviorRoute;
-          if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            name.setText(transportDetails.getRouteName());
-          } else {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            name.setText(transportDetails.getRouteName());
-          }
-        }*/
-        return false;
+
+
       }
+      return false;
     });
 
     sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -162,19 +117,14 @@ public class MainActivity extends AppCompatActivity
       }
     });
 
-    mapFragment.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
-      @Override
-      public void onCameraIdle() {
-        doSubscription();
-        doQuery();
-      }
+    mapFragment.setOnCameraIdleListener(() -> {
+      doSubscription();
+      doQuery();
     });
-    mapFragment.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-      @Override
-      public void onMapClick(LatLng latLng) {
-        if (sheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
-          sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        }
+
+    mapFragment.setOnMapClickListener(latLng -> {
+      if (sheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
+        sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
       }
     });
   }
@@ -228,20 +178,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     MainActivity.this.runOnUiThread(() -> {
-      name.setText(stop.stop().name());
-      code.setText(stop.stop().code());
-      zone.setText(stop.stop().zoneId());
-      //mode.setText(stop.stop().vehicleMode().rawValue());
-      if (stop.stop().platformCode() != null) {
-        platform.setText(stop.stop().platformCode());
-      }
+      // Set additional info about the stop
     });
 
   }
 
-  void doStopDetailsQuery(Marker marker) {
-    String id = marker.getTitle();
-    Stop.makeStop(id, new Stop.Callback() {
+  void setBottomSheetStopDetails(Marker marker) {
+    Stop stop = (Stop) marker.getTag();
+
+    this.runOnUiThread(() -> {
+      name.setText(stop.getName());
+      code.setText(Integer.toString(stop.getCode()));
+      zone.setText(stop.getZoneId());
+      platform.setText(stop.getPlatformCode());
+    });
+
+    Stop.makeStop(stop.getId(), new Stop.Callback() {
       @Override
       public void onStop(StopDetailsQuery.Data stop) {
         getStopDetails(stop);
@@ -249,13 +201,12 @@ public class MainActivity extends AppCompatActivity
 
       @Override
       public void onError(@NotNull ApolloException e) {
-
       }
     });
   }
 
   @Override
   public void onFragmentInteraction(Uri uri) {
-
+    // Required for MapFragment to work 🤷‍
   }
 }
