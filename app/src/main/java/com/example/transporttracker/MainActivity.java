@@ -25,14 +25,26 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hsl.StopDetailsQuery;
 import com.hsl.TransportDetailsQuery;
 
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.jetbrains.annotations.NotNull;
+
+import static java.lang.System.currentTimeMillis;
 
 public class MainActivity extends AppCompatActivity
   implements
   ActivityCompat.OnRequestPermissionsResultCallback,
   MapFragment.OnFragmentInteractionListener {
+
+  /*Calendar c = Calendar.getInstance();
+  c.Builder..set(Calendar.HOUR_OF_DAY, 0);
+  c.set(Calendar.MINUTE, 0);
+  c.set(Calendar.SECOND, 0);
+  c.set(Calendar.MILLISECOND, 0);*/
+  long unixTime = currentTimeMillis() / 1000L;
 
   MapFragment mapFragment;
 
@@ -210,12 +222,12 @@ public class MainActivity extends AppCompatActivity
       return;
     }
 
-    stop.makeStopDetailsArrays(data);
+    stop.makeStopDetailsArrays(data, unixTime);
 
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
       recyclerView = findViewById(R.id.recycler_view);
-      listAdapter = new ListAdapter(MainActivity.this,stop.getRouteNums(),stop.getRouteNames());
+      listAdapter = new ListAdapter(MainActivity.this,stop.getRouteNums(),stop.getRouteNames(),stop.getRouteTime(),stop.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
       //recyclerView.setHasFixedSize(true);
       recyclerView.setAdapter(listAdapter);
