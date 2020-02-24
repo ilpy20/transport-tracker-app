@@ -25,8 +25,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hsl.StopDetailsQuery;
 import com.hsl.TransportDetailsQuery;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -39,12 +42,10 @@ public class MainActivity extends AppCompatActivity
   ActivityCompat.OnRequestPermissionsResultCallback,
   MapFragment.OnFragmentInteractionListener {
 
-  /*Calendar c = Calendar.getInstance();
-  c.Builder..set(Calendar.HOUR_OF_DAY, 0);
-  c.set(Calendar.MINUTE, 0);
-  c.set(Calendar.SECOND, 0);
-  c.set(Calendar.MILLISECOND, 0);*/
-  long unixTime = currentTimeMillis() / 1000L;
+  ZonedDateTime nowZoned = ZonedDateTime.now();
+  Instant midnight = nowZoned.toLocalDate().atStartOfDay(nowZoned.getZone()).toInstant();
+  Duration duration = Duration.between(midnight, Instant.now());
+  long seconds = duration.getSeconds();
 
   MapFragment mapFragment;
 
@@ -222,7 +223,7 @@ public class MainActivity extends AppCompatActivity
       return;
     }
 
-    stop.makeStopDetailsArrays(data, unixTime);
+    stop.makeStopDetailsArrays(data, seconds);
 
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop

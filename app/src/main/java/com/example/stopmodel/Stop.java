@@ -113,7 +113,7 @@ public class Stop {
       if (nearbyRoutes.get(i).realtimeArrival() != null)
         timeArrive = Long.valueOf(nearbyRoutes.get(i).realtimeArrival());
       else timeArrive = Long.valueOf(nearbyRoutes.get(i).scheduledArrival());
-      routeTime.add(Long.toString((timeArrive) / 3600) + " min");
+      routeTime.add(Long.toString((timeArrive-unixTime) / 60) + " min");
       if (nearbyRoutes.get(i).arrivalDelay() > 0)
         routeDelay.add("Delayed " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60));
       else if (nearbyRoutes.get(i).arrivalDelay() < 0)
