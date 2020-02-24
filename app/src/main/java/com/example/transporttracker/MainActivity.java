@@ -42,10 +42,7 @@ public class MainActivity extends AppCompatActivity
   ActivityCompat.OnRequestPermissionsResultCallback,
   MapFragment.OnFragmentInteractionListener {
 
-  ZonedDateTime nowZoned = ZonedDateTime.now();
-  Instant midnight = nowZoned.toLocalDate().atStartOfDay(nowZoned.getZone()).toInstant();
-  Duration duration = Duration.between(midnight, Instant.now());
-  long seconds = duration.getSeconds();
+
 
   MapFragment mapFragment;
 
@@ -222,6 +219,11 @@ public class MainActivity extends AppCompatActivity
     if (data == null) {
       return;
     }
+
+    ZonedDateTime nowZoned = ZonedDateTime.now();
+    Instant midnight = nowZoned.toLocalDate().atStartOfDay(nowZoned.getZone()).toInstant();
+    Duration duration = Duration.between(midnight, Instant.now());
+    long seconds = duration.getSeconds();
 
     stop.makeStopDetailsArrays(data, seconds);
 
