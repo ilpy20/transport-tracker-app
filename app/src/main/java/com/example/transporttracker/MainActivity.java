@@ -220,12 +220,9 @@ public class MainActivity extends AppCompatActivity
       return;
     }
 
-    ZonedDateTime nowZoned = ZonedDateTime.now();
-    Instant midnight = nowZoned.toLocalDate().atStartOfDay(nowZoned.getZone()).toInstant();
-    Duration duration = Duration.between(midnight, Instant.now());
-    long seconds = duration.getSeconds();
+    long unixTime = Instant.now().getEpochSecond();
 
-    stop.makeStopDetailsArrays(data, seconds);
+    stop.makeStopDetailsArrays(data, unixTime);
 
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop

@@ -13,6 +13,7 @@ import com.hsl.type.Mode;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -34,6 +35,7 @@ public class Stop {
   private ArrayList<String> routeTime;
   private ArrayList<String> routeDelay;
   private Long timeArrive;
+  private BigDecimal serviceDay;
 
   private static StopDetailsQuery initializeQuery(String id) {
     return StopDetailsQuery.builder().id(id).build();
@@ -110,14 +112,15 @@ public class Stop {
       routeNums.add(nearbyRoutes.get(i).trip().routeShortName());
       routeNames.add(nearbyRoutes.get(i).headsign());
       nearbyRoutes.get(i).scheduledArrival();
+      serviceDay = (BigDecimal) nearbyRoutes.get(i).serviceDay();
       if (nearbyRoutes.get(i).realtimeArrival() != null)
         timeArrive = Long.valueOf(nearbyRoutes.get(i).realtimeArrival());
       else timeArrive = Long.valueOf(nearbyRoutes.get(i).scheduledArrival());
-      routeTime.add(Long.toString((timeArrive-unixTime) / 60) + " min");
+      routeTime.add(Long.toString((timeArrive+serviceDay.longValue()-unixTime) / 60) + " min");
       if (nearbyRoutes.get(i).arrivalDelay() > 0)
-        routeDelay.add("Delayed " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60));
+        routeDelay.add("Delayed " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
       else if (nearbyRoutes.get(i).arrivalDelay() < 0)
-        routeDelay.add("Quicked " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60));
+        routeDelay.add("Quicked " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
       else routeDelay.add("On time");
       nearbyRoutes.get(i).scheduledDeparture();
       nearbyRoutes.get(i).realtimeDeparture();
