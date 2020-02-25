@@ -29,6 +29,7 @@ query StopDetails($id:String!) {
             scheduledDeparture
             realtimeDeparture
             departureDelay
+            serviceDay
             headsign
             trip {
                 gtfsId
