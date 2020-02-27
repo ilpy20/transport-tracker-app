@@ -120,7 +120,7 @@ public class Stop {
       if (nearbyRoutes.get(i).arrivalDelay() > 0)
         routeDelay.add("Delayed " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
       else if (nearbyRoutes.get(i).arrivalDelay() < 0)
-        routeDelay.add("Quicked " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
+        routeDelay.add("Quicked " + Integer.toString(-nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
       else routeDelay.add("On time");
       nearbyRoutes.get(i).scheduledDeparture();
       nearbyRoutes.get(i).realtimeDeparture();

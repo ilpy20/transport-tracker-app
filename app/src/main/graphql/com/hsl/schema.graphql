@@ -53,6 +53,9 @@ subscription Transport(
         lat
         lon
         desi
+        route
+        dir
+        start
         mode
         id
         nextStop
@@ -60,7 +63,24 @@ subscription Transport(
     }
 }
 
-query TransportDetails($id:String!) {
+query TransportDetails($id:String!, $date:String!, $dir:Int!, $time:Int!, $route:String!) {
+    fuzzyTrip(date: $date, direction: $dir, route: $route, time: $time){
+        routeShortName
+        tripHeadsign
+        stoptimes {
+            stop {
+                name
+                gtfsId
+            }
+            scheduledArrival
+            realtimeArrival
+            arrivalDelay
+            scheduledDeparture
+            realtimeDeparture
+            departureDelay
+            realtimeState
+        }
+    }
     trip(id: $id) {
         routeShortName
         tripHeadsign
