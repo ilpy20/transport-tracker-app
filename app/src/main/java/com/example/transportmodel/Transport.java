@@ -1,6 +1,7 @@
 package com.example.transportmodel;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.hsl.TransportDetailsQuery;
 import com.hsl.TransportSubscription;
 
 public class Transport {
@@ -21,6 +22,10 @@ public class Transport {
     id = transportEvent.id();
     routeDisplayName = transportEvent.desi();
     updateFromEvent(transportEvent);
+  }
+
+  private static TransportDetailsQuery initializeQuery(String id){
+    return TransportDetailsQuery.builder().id(id).build();
   }
 
   public void updateFromEvent(TransportSubscription.TransportEventsInArea transportEvent) {

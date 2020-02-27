@@ -3,6 +3,7 @@ package com.example.transporttracker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -74,7 +75,7 @@ public class MainActivity extends AppCompatActivity
     transportModel = new TransportModel();
     stopModel = new StopModel();
 
-    RelativeLayout bottom_sheet = findViewById(R.id.bottom_sheet);
+    NestedScrollView bottom_sheet = findViewById(R.id.bottom_sheet);
     sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
     sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
