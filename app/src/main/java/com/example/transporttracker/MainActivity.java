@@ -117,22 +117,6 @@ public class MainActivity extends AppCompatActivity
         if (newState == BottomSheetBehavior.STATE_DRAGGING) {
           sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         }
-        /*switch (newState) {
-          case BottomSheetBehavior.STATE_HIDDEN:
-            break;
-          case BottomSheetBehavior.STATE_EXPANDED: {
-            stopName.setText(stopDetails.getStopName());
-            break;
-          }
-          case BottomSheetBehavior.STATE_COLLAPSED: {
-            stopName.setText(stopDetails.getStopName());
-            break;
-          }
-          case BottomSheetBehavior.STATE_DRAGGING:
-            break;
-          case BottomSheetBehavior.STATE_SETTLING:
-            break;
-        }*/
       }
 
       @Override

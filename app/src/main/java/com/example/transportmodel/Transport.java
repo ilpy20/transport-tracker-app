@@ -24,8 +24,12 @@ public class Transport {
     updateFromEvent(transportEvent);
   }
 
-  private static TransportDetailsQuery initializeQuery(String id){
+  private static TransportDetailsQuery initializeQueryFromStop(String id){
     return TransportDetailsQuery.builder().id(id).build();
+  }
+
+  private static TransportDetailsQuery initializeQueryFromMap(String date, int dir, String route, int time){
+    return TransportDetailsQuery.builder().date(date).dir(dir).route(route).time(time).build();
   }
 
   public void updateFromEvent(TransportSubscription.TransportEventsInArea transportEvent) {

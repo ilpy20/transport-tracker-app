@@ -32,10 +32,10 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
 
     public MyViewHolder(View itemView) {
       super(itemView);
-      this.num = itemView.findViewById(R.id.numRV);
-      this.name = itemView.findViewById(R.id.nameRV);
-      this.time = itemView.findViewById(R.id.timeRV);
-      this.delay = itemView.findViewById(R.id.delay);
+      this.num = itemView.findViewById(R.id.codeRV);
+      this.name = itemView.findViewById(R.id.nameSRV);
+      this.time = itemView.findViewById(R.id.timeSRV);
+      this.delay = itemView.findViewById(R.id.delayS);
     }
   }
 
