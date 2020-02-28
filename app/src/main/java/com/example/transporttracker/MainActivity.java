@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity
   TransportModel transportModel;
   StopModel stopModel;
   Stop stop;
+  Transport transport;
 
   BottomSheetBehavior sheetBehavior;
   TextView name;
@@ -174,7 +175,7 @@ public class MainActivity extends AppCompatActivity
   }
 
   void setBottomSheetTransportDetails(Marker marker){
-    Transport transport = (Transport) marker.getTag();
+    transport = (Transport) marker.getTag();
 
     this.runOnUiThread(()->{
       code.setText(transport.getRouteDisplayName());
@@ -232,7 +233,7 @@ public class MainActivity extends AppCompatActivity
     });
 
 
-    Stop.makeStop(stop.getGtfsId(), stop, new Stop.Callback() {
+    Stop.makeStop(stop.getGtfsId(), new Stop.Callback() {
       @Override
       public void onStop(@NonNull StopDetailsQuery.Data data) {
         getStopDetails(data);

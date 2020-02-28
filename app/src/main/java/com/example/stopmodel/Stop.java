@@ -128,7 +128,7 @@ public class Stop {
     }
   }
 
-  private static void makeStopDetailsQuery(StopDetailsQuery stopDetailsQuery, final Callback callback, Stop stop) {
+  private static void makeStopDetailsQuery(StopDetailsQuery stopDetailsQuery, final Callback callback) {
     Networking.apollo().query(stopDetailsQuery).enqueue(new ApolloCall.Callback<StopDetailsQuery.Data>() {
       @Override
       public void onResponse(@NotNull Response<StopDetailsQuery.Data> response) {
@@ -146,8 +146,8 @@ public class Stop {
     });
   }
 
-  public static void makeStop(String id, Stop stop, Callback callback) {
-    makeStopDetailsQuery(initializeQuery(id), callback, stop);
+  public static void makeStop(String id, Callback callback) {
+    makeStopDetailsQuery(initializeQuery(id), callback);
   }
 
 

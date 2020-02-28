@@ -11,7 +11,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.transporttracker.R;
@@ -47,7 +46,7 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     }
   }
 
-  public TransportDetailsListAdapter(Context mContext,ArrayList<Drawable> mode,ArrayList<String> code,ArrayList<String> name,ArrayList<String> zone,ArrayList<String> time,ArrayList<String> delay) {
+  public TransportDetailsListAdapter(Context mContext, ArrayList<Drawable> mode, ArrayList<String> code, ArrayList<String> name, ArrayList<String> zone, ArrayList<String> time, ArrayList<String> delay) {
     this.mContext = mContext;
     this.mMode = mode;
     this.mCode = code;
@@ -77,7 +76,7 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     holder.itemView.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        Toast.makeText(mContext,"Position : "+i,Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, "Position : " + i, Toast.LENGTH_LONG).show();
       }
     });
 
@@ -85,6 +84,6 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
 
   @Override
   public int getItemCount() {
-    return mCode == null ? 0: mCode.size();
+    return mCode == null ? 0 : mCode.size();
   }
 }
