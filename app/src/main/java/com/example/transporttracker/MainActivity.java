@@ -3,6 +3,8 @@ package com.example.transporttracker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hsl.StopDetailsQuery;
+import com.hsl.TransportDetailsQuery;
 
 import java.util.List;
 
@@ -35,12 +38,16 @@ public class MainActivity extends AppCompatActivity
 
   TransportModel transportModel;
   StopModel stopModel;
+  Stop stop;
 
   BottomSheetBehavior sheetBehavior;
   TextView name;
   TextView code;
   TextView zone;
   TextView platform;
+
+  RecyclerView recyclerView;
+  ListAdapter listAdapter;
 
 
   @Override
@@ -71,19 +78,24 @@ public class MainActivity extends AppCompatActivity
     mapFragment.setOnMapReadyListener(() -> setMapListeners());
   }
 
+  void bottomSheetChecker(){
+    if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+      sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    } else {
+      sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+  }
 
   public void setMapListeners() {
     mapFragment.setOnMarkerClickListener(marker -> {
+
       if (marker.getSnippet().equals("stop")) {
         setBottomSheetStopDetails(marker);
-
-        if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-          sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        } else {
-          sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        }
-
-
+        bottomSheetChecker();
+      }
+      else{
+        setBottomSheetTransportDetails(marker);
+        bottomSheetChecker();
       }
       return false;
     });
@@ -91,6 +103,9 @@ public class MainActivity extends AppCompatActivity
     sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
       @Override
       public void onStateChanged(@NonNull View bottomSheet, int newState) {
+        if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+          sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
         /*switch (newState) {
           case BottomSheetBehavior.STATE_HIDDEN:
             break;
@@ -153,6 +168,26 @@ public class MainActivity extends AppCompatActivity
     MainActivity.this.runOnUiThread(() -> mapFragment.addStopMarkers(stops));
   }
 
+  void getTransportDetails(final TransportDetailsQuery.Data transport){
+    if(transport==null){
+      return;
+    }
+
+    MainActivity.this.runOnUiThread(()->{
+      //Set additional info about transport
+    });
+  }
+
+  void setBottomSheetTransportDetails(Marker marker){
+    Transport transport = (Transport) marker.getTag();
+
+    this.runOnUiThread(()->{
+      code.setText(transport.getRouteDisplayName());
+      name.setText(transport.getRouteName());
+      zone.setText("");
+    });
+  }
+
   void doQuery() {
     VisibleRegion bounds = mapFragment.getMapBounds();
     LatLng farLeft = bounds.farLeft;
@@ -170,31 +205,40 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
-  void getStopDetails(final StopDetailsQuery.Data stop) {
-    if (stop == null) {
+  void getStopDetails(final StopDetailsQuery.Data data) {
+    if (data == null) {
       return;
     }
 
+    stop.makeStopDetailsArrays(data);
+
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
+      recyclerView = findViewById(R.id.recycler_view);
+      listAdapter = new ListAdapter(MainActivity.this,stop.getRouteNums(),stop.getRouteNames());
+      recyclerView.setLayoutManager(new LinearLayoutManager(this));
+      //recyclerView.setHasFixedSize(true);
+      recyclerView.setAdapter(listAdapter);
+
     });
 
   }
 
   void setBottomSheetStopDetails(Marker marker) {
-    Stop stop = (Stop) marker.getTag();
+    stop = (Stop) marker.getTag();
 
     this.runOnUiThread(() -> {
+      code.setText(stop.getCode());
       name.setText(stop.getName());
-      code.setText(Integer.toString(stop.getCode()));
       zone.setText(stop.getZoneId());
       platform.setText(stop.getPlatformCode());
     });
 
-    Stop.makeStop(stop.getId(), new Stop.Callback() {
+
+    Stop.makeStop(stop.getGtfsId(), stop, new Stop.Callback() {
       @Override
-      public void onStop(StopDetailsQuery.Data stop) {
-        getStopDetails(stop);
+      public void onStop(@NonNull StopDetailsQuery.Data data) {
+        getStopDetails(data);
       }
 
       @Override
