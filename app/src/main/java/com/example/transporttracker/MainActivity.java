@@ -24,8 +24,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hsl.StopDetailsQuery;
+import com.hsl.TransportDetailsFromMapQuery;
+import com.hsl.TransportDetailsFromStopQuery;
 import com.hsl.TransportDetailsQuery;
 
+import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -41,7 +44,8 @@ import static java.lang.System.currentTimeMillis;
 public class MainActivity extends AppCompatActivity
   implements
   ActivityCompat.OnRequestPermissionsResultCallback,
-  MapFragment.OnFragmentInteractionListener {
+  MapFragment.OnFragmentInteractionListener
+  {
 
 
 
@@ -164,13 +168,22 @@ public class MainActivity extends AppCompatActivity
     MainActivity.this.runOnUiThread(() -> mapFragment.addStopMarkers(stops));
   }
 
-  void getTransportDetails(final TransportDetailsQuery.Data transport){
-    if(transport==null){
+  void getTransportDetails(final TransportDetailsFromMapQuery.Data data){
+    if(data==null){
       return;
     }
 
+    long unixTime = Instant.now().getEpochSecond();
+    transport.makeTransportDetailsFromMapArrays(data,unixTime);
+
     MainActivity.this.runOnUiThread(()->{
       //Set additional info about transport
+      name.setText(transport.getRouteName());
+      recyclerView = findViewById(R.id.recycler_view);
+      listAdapter = new ListAdapter(MainActivity.this,transport.getStopCodes(),transport.getStopNames(),transport.getRouteTime(),transport.getRouteDelay());
+      recyclerView.setLayoutManager(new LinearLayoutManager(this));
+      //recyclerView.setHasFixedSize(true);
+      recyclerView.setAdapter(listAdapter);
     });
   }
 
@@ -179,8 +192,23 @@ public class MainActivity extends AppCompatActivity
 
     this.runOnUiThread(()->{
       code.setText(transport.getRouteDisplayName());
-      name.setText(transport.getRouteName());
       zone.setText("");
+    });
+
+    Transport.getTransportDetailsFromMap(transport.getRouteDate(),transport.getRouteDirection(),transport.getRouteId(),transport.getRouteStart(),new Transport.Callback(){
+      @Override
+      public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data){
+        getTransportDetails(data);
+      }
+
+      @Override
+      public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
+
+      }
+
+      @Override
+      public void onError(@NotNull ApolloException e) {
+      }
     });
   }
 
