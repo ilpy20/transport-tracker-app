@@ -9,14 +9,14 @@
     android:orientation="horizontal">
 
     <ImageView
-        android:id="@+id/modeRV"
+        android:id="@+id/modeRRV"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_weight="1" />
 
     <TextView
-        android:id="@+id/numRV"
+        android:id="@+id/numRRV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -25,7 +25,7 @@
         android:textSize="18sp" />
 
     <TextView
-        android:id="@+id/nameRV"
+        android:id="@+id/nameRRV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -34,7 +34,7 @@
         android:textSize="15sp" />
 
     <TextView
-        android:id="@+id/zoneRV"
+        android:id="@+id/zoneRRV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -43,7 +43,7 @@
         android:textSize="18sp" />
 
     <LinearLayout
-        android:id="@+id/timeRVL"
+        android:id="@+id/timeRRVL"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -52,12 +52,12 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/timeRV"
+            android:id="@+id/timeRRV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <TextView
-            android:id="@+id/delay"
+            android:id="@+id/delayR"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>

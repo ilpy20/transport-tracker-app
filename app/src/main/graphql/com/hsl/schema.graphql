@@ -29,6 +29,7 @@ query StopDetails($id:String!) {
             scheduledDeparture
             realtimeDeparture
             departureDelay
+            serviceDay
             headsign
             trip {
                 gtfsId
@@ -52,6 +53,10 @@ subscription Transport(
         lat
         lon
         desi
+        route
+        dir
+        start
+        oday
         mode
         id
         nextStop
@@ -59,13 +64,16 @@ subscription Transport(
     }
 }
 
-query TransportDetails($id:String!) {
-    trip(id: $id) {
+query TransportDetailsFromMap($date:String!, $dir:Int!, $time:Int!, $route:String!) {
+    fuzzyTrip(date: $date, direction: $dir, route: $route, time: $time){
         routeShortName
         tripHeadsign
         stoptimes {
             stop {
                 name
+                code
+                zoneId
+                platformCode
                 gtfsId
             }
             scheduledArrival
@@ -75,6 +83,30 @@ query TransportDetails($id:String!) {
             realtimeDeparture
             departureDelay
             realtimeState
+            serviceDay
+        }
+    }
+}
+query TransportDetailsFromStop($id:String!){
+    trip(id: $id) {
+        routeShortName
+        tripHeadsign
+        stoptimes {
+            stop {
+                name
+                code
+                zoneId
+                platformCode
+                gtfsId
+            }
+            scheduledArrival
+            realtimeArrival
+            arrivalDelay
+            scheduledDeparture
+            realtimeDeparture
+            departureDelay
+            realtimeState
+            serviceDay
         }
     }
 }

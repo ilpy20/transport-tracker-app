@@ -1,4 +1,4 @@
-package com.example.transporttracker;
+package com.example.stopmodel;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,11 +12,12 @@ import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.transporttracker.R;
+
 import java.util.ArrayList;
 
-public class ListAdapter extends RecyclerView.Adapter<ListAdapter.MyViewHolder> {
+public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsListAdapter.MyViewHolder> {
   private Context mContext;
-  private ArrayList<String> mMode;
   private ArrayList<String> mNum;
   private ArrayList<String> mName;
   private ArrayList<String> mTime;
@@ -28,21 +29,18 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.MyViewHolder> 
     TextView name;
     TextView time;
     TextView delay;
-    ImageView imgMode;
 
     public MyViewHolder(View itemView) {
       super(itemView);
-      this.imgMode = (ImageView) itemView.findViewById(R.id.modeRV);
-      this.num = (TextView) itemView.findViewById(R.id.numRV);
-      this.name = (TextView) itemView.findViewById(R.id.nameRV);
-      this.time = itemView.findViewById(R.id.timeRV);
-      this.delay = itemView.findViewById(R.id.delay);
+      this.num = itemView.findViewById(R.id.codeRV);
+      this.name = itemView.findViewById(R.id.nameSRV);
+      this.time = itemView.findViewById(R.id.timeSRV);
+      this.delay = itemView.findViewById(R.id.delayS);
     }
   }
 
-  public ListAdapter(Context mContext,ArrayList<String> num,ArrayList<String> name,ArrayList<String> time,ArrayList<String> delay) {
+  public StopDetailsListAdapter(Context mContext,ArrayList<String> num,ArrayList<String> name,ArrayList<String> time,ArrayList<String> delay) {
     this.mContext = mContext;
-    //this.mMode = mode;
     this.mNum = num;
     this.mName = name;
     this.mTime = time;
@@ -52,7 +50,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.MyViewHolder> 
   @Override
   public MyViewHolder onCreateViewHolder(final ViewGroup parent,
                                          final int viewType) {
-    final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_layout, parent, false);
+    final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.stop_recyclerview_layout, parent, false);
     MyViewHolder myViewHolder = new MyViewHolder(view);
     return myViewHolder;
   }
