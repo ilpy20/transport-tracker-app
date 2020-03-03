@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
+import com.google.maps.android.ui.IconGenerator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -129,13 +131,19 @@ public class MapFragment extends Fragment {
     if (existingMarker != null) {
       existingMarker.setPosition(position);
     } else {
+      //IconGenerator icg = new IconGenerator(getContext());
+      //icg.setColor(Color.GREEN); // green background
+      //icg.setTextAppearance(R.style.amu_Bubble_TextAppearance_Dark); // black text
+      //Bitmap bm = icg.makeIcon(transport.getRouteDisplayName());
+      IconGenerator iconTransportMarker = new IconGenerator(getContext());
+      iconTransportMarker.setBackground(getResources().getDrawable(R.drawable.transport_icon));
       Marker marker = googleMap.addMarker(
         new MarkerOptions()
           .position(position)
           .title(transport.getRouteDisplayName())
           .snippet("route")
           .anchor(0.5f, 0.5f)
-          .icon(BitmapDescriptorFactory.fromResource(R.drawable.transport_icon))
+          .icon(BitmapDescriptorFactory.fromBitmap(iconTransportMarker.makeIcon(transport.getRouteDisplayName())))
       );
 
       marker.setTag(transport);
@@ -204,7 +212,6 @@ public class MapFragment extends Fragment {
   public interface OnMapViewReadyCallback {
     void onMapReady();
   }
-
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
