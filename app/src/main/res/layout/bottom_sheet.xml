@@ -7,6 +7,7 @@
     android:background="@color/colorAccent"
     android:clipToPadding="true"
     app:behavior_hideable="true"
+    app:behavior_peekHeight="300dp"
     app:elevation="4dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
@@ -79,7 +80,7 @@
                 android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars = "vertical"/>
+                android:scrollbars="vertical" />
         </LinearLayout>
     </LinearLayout>
 

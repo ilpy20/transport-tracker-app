@@ -31,6 +31,7 @@ public class Transport {
   private String routeDate;
   private String nextStop;
   private String stop;
+  private ArrayList<String> stopId;
   private ArrayList<String> stopCodes;
   private ArrayList<String> stopNames;
   private ArrayList<String> stopZones;
@@ -111,6 +112,8 @@ public class Transport {
 
   public Long getServiceDay() { return serviceDay; }
 
+  public ArrayList<String> getStopId() { return stopId; }
+
   public ArrayList<String> getStopCodes() {
     return stopCodes;
   }
@@ -147,6 +150,7 @@ public class Transport {
 
   public void makeTransportDetailsFromMapArrays(@NonNull TransportDetailsFromMapQuery.Data data, long unixTime){
     if (data.fuzzyTrip() != null) {
+      stopId = new ArrayList<>();
       stopCodes = new ArrayList<>();
       stopNames = new ArrayList<>();
       stopZones = new ArrayList<>();
@@ -156,32 +160,36 @@ public class Transport {
       routeName = data.fuzzyTrip().tripHeadsign();
       List<TransportDetailsFromMapQuery.Stoptime> routeList = data.fuzzyTrip().stoptimes();
       for (int i = 0; i < routeList.size(); i++) {
-        routeList.get(i).stop().gtfsId();
-        stopNames.add(routeList.get(i).stop().name());
-        stopCodes.add(routeList.get(i).stop().code());
-        stopZones.add(routeList.get(i).stop().zoneId());
-        platformCodes.add(routeList.get(i).stop().platformCode());
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-          Date date = format.parse(getRouteDate()+" 00:00:00");
-          serviceDay = date.getTime()/1000;
+          Date date = format.parse(getRouteDate() + " 00:00:00");
+          serviceDay = date.getTime() / 1000;
         } catch (ParseException e) {
           e.printStackTrace();
         }
         if (routeList.get(i).realtimeArrival() != null)
           timeArrive = Long.valueOf(routeList.get(i).realtimeArrival());
         else timeArrive = Long.valueOf(routeList.get(i).scheduledArrival());
-        routeTime.add(Long.toString((timeArrive + serviceDay - unixTime) / 60) + " min");
-        if (routeList.get(i).arrivalDelay() > 0)
-          routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60) + " min");
-        else if (routeList.get(i).arrivalDelay() < 0)
-          routeDelay.add("Quicked " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
-        else routeDelay.add("On time");
+        if (timeArrive + serviceDay >= unixTime) {
+          stopId.add(routeList.get(i).stop().gtfsId());
+          stopNames.add(routeList.get(i).stop().name());
+          stopCodes.add(routeList.get(i).stop().code());
+          stopZones.add(routeList.get(i).stop().zoneId());
+          platformCodes.add(routeList.get(i).stop().platformCode());
+          routeTime.add(Long.toString((timeArrive + serviceDay - unixTime) / 60) + " min");
+          //else routeTime.add(Long.toString((unixTime-timeArrive-serviceDay)/60)+" min"+" ago");
+          if (routeList.get(i).arrivalDelay() > 0)
+            routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60) + " min");
+          else if (routeList.get(i).arrivalDelay() < 0)
+            routeDelay.add("Quicked " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
+          else routeDelay.add("On time");
+        }
       }
     }
   }
   public void makeTransportDetailsFromStopArrays(@NonNull TransportDetailsFromStopQuery.Data data, long unixTime){
     if(data.trip()!=null){
+      stopId = new ArrayList<>();
       stopCodes = new ArrayList<>();
       stopNames = new ArrayList<>();
       stopZones = new ArrayList<>();
@@ -190,28 +198,31 @@ public class Transport {
       routeDelay = new ArrayList<>();
       routeName = data.trip().tripHeadsign();
       List<TransportDetailsFromStopQuery.Stoptime> routeList = data.trip().stoptimes();
-      for(int i = 0; i<routeList.size();i++){
-        routeList.get(i).stop().gtfsId();
-        stopNames.add(routeList.get(i).stop().name());
-        stopCodes.add(routeList.get(i).stop().code());
-        stopZones.add(routeList.get(i).stop().zoneId());
-        platformCodes.add(routeList.get(i).stop().platformCode());
+      for(int i = 0; i<routeList.size();i++) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
-          Date date = format.parse(getRouteDate()+" 00:00:00");
-          serviceDay = date.getTime()/1000;
+          Date date = format.parse(getRouteDate() + " 00:00:00");
+          serviceDay = date.getTime() / 1000;
         } catch (ParseException e) {
           e.printStackTrace();
         }
         if (routeList.get(i).realtimeArrival() != null)
           timeArrive = Long.valueOf(routeList.get(i).realtimeArrival());
         else timeArrive = Long.valueOf(routeList.get(i).scheduledArrival());
-        routeTime.add(Long.toString((timeArrive+serviceDay-unixTime) / 60) + " min");
-        if (routeList.get(i).arrivalDelay() > 0)
-          routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60)+" min");
-        else if (routeList.get(i).arrivalDelay() < 0)
-          routeDelay.add("Quicked " + Integer.toString(-routeList.get(i).arrivalDelay() / 60)+" min");
-        else routeDelay.add("On time");
+        if (timeArrive + serviceDay >= unixTime) {
+          stopId.add(routeList.get(i).stop().gtfsId());
+          stopNames.add(routeList.get(i).stop().name());
+          stopCodes.add(routeList.get(i).stop().code());
+          stopZones.add(routeList.get(i).stop().zoneId());
+          platformCodes.add(routeList.get(i).stop().platformCode());
+          routeTime.add(Long.toString((timeArrive + serviceDay - unixTime) / 60) + " min");
+          //else routeTime.add(Long.toString((unixTime-timeArrive-serviceDay)/60)+" min"+" ago");
+          if (routeList.get(i).arrivalDelay() > 0)
+            routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60) + " min");
+          else if (routeList.get(i).arrivalDelay() < 0)
+            routeDelay.add("Quicked " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
+          else routeDelay.add("On time");
+        }
       }
     }
   }
