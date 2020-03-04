@@ -7,18 +7,19 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.apollographql.apollo.exception.ApolloException;
 import com.example.stopmodel.Stop;
+import com.example.stopmodel.StopDetailsListAdapter;
 import com.example.stopmodel.StopModel;
 import com.example.transportmodel.Transport;
+import com.example.transportmodel.TransportDetailsListAdapter;
 import com.example.transportmodel.TransportModel;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.VisibleRegion;
@@ -26,20 +27,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.hsl.StopDetailsQuery;
 import com.hsl.TransportDetailsFromMapQuery;
 import com.hsl.TransportDetailsFromStopQuery;
-import com.hsl.TransportDetailsQuery;
 
-import java.text.ParseException;
-import java.time.Duration;
 import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.jetbrains.annotations.NotNull;
-
-import static java.lang.System.currentTimeMillis;
 
 public class MainActivity extends AppCompatActivity
   implements
@@ -63,8 +55,8 @@ public class MainActivity extends AppCompatActivity
   TextView platform;
 
   RecyclerView recyclerView;
-  ListAdapter listAdapter;
-
+  StopDetailsListAdapter stopDetailsListAdapter;
+  TransportDetailsListAdapter transportDetailsListAdapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -95,9 +87,7 @@ public class MainActivity extends AppCompatActivity
   }
 
   void bottomSheetChecker(){
-    if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-      sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-    } else {
+    if (sheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED) {
       sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
   }
@@ -168,7 +158,7 @@ public class MainActivity extends AppCompatActivity
     MainActivity.this.runOnUiThread(() -> mapFragment.addStopMarkers(stops));
   }
 
-  void getTransportDetails(final TransportDetailsFromMapQuery.Data data){
+  public void getTransportDetailsFromMap(final TransportDetailsFromMapQuery.Data data){
     if(data==null){
       return;
     }
@@ -180,25 +170,52 @@ public class MainActivity extends AppCompatActivity
       //Set additional info about transport
       name.setText(transport.getRouteName());
       recyclerView = findViewById(R.id.recycler_view);
-      listAdapter = new ListAdapter(MainActivity.this,transport.getStopCodes(),transport.getStopNames(),transport.getRouteTime(),transport.getRouteDelay());
+      transportDetailsListAdapter = new TransportDetailsListAdapter(MainActivity.this,
+          transport.getStopId(),transport.getStopCodes(),transport.getStopNames(),transport.getStopZones(),
+          transport.getPlatformCodes(),transport.getRouteTime(),transport.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
       //recyclerView.setHasFixedSize(true);
-      recyclerView.setAdapter(listAdapter);
+      recyclerView.setAdapter(transportDetailsListAdapter);
     });
   }
 
-  void setBottomSheetTransportDetails(Marker marker){
+    public void getTransportDetailsFromStop(final TransportDetailsFromStopQuery.Data data){
+      if(data==null){
+        return;
+      }
+
+      long unixTime = Instant.now().getEpochSecond();
+      transport.makeTransportDetailsFromStopArrays(data,unixTime);
+
+      MainActivity.this.runOnUiThread(()->{
+        //Set additional info about transport
+        name.setText(transport.getRouteName());
+        recyclerView = findViewById(R.id.recycler_view);
+        transportDetailsListAdapter = new TransportDetailsListAdapter(MainActivity.this,
+            transport.getStopId(),transport.getStopCodes(),transport.getStopNames(),transport.getStopZones(),
+            transport.getPlatformCodes(),transport.getRouteTime(),transport.getRouteDelay());
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(transportDetailsListAdapter);
+      });
+    }
+
+  public void setBottomSheetTransportDetails(Marker marker){
     transport = (Transport) marker.getTag();
 
     this.runOnUiThread(()->{
+      code.setBackgroundColor(Color.WHITE);
+      code.setTextColor(Color.BLACK);
       code.setText(transport.getRouteDisplayName());
+      zone.setBackgroundColor(Color.WHITE);
       zone.setText("");
     });
 
-    Transport.getTransportDetailsFromMap(transport.getRouteDate(),transport.getRouteDirection(),transport.getRouteId(),transport.getRouteStart(),new Transport.Callback(){
+    Transport.getTransportDetailsFromMap(transport.getRouteDate(),transport.getRouteDirection(),
+        transport.getRouteId(),transport.getRouteStart(),new Transport.Callback(){
       @Override
       public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data){
-        getTransportDetails(data);
+        getTransportDetailsFromMap(data);
       }
 
       @Override
@@ -229,7 +246,7 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
-  void getStopDetails(final StopDetailsQuery.Data data) {
+  public void getStopDetails(final StopDetailsQuery.Data data) {
     if (data == null) {
       return;
     }
@@ -241,21 +258,26 @@ public class MainActivity extends AppCompatActivity
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
       recyclerView = findViewById(R.id.recycler_view);
-      listAdapter = new ListAdapter(MainActivity.this,stop.getRouteNums(),stop.getRouteNames(),stop.getRouteTime(),stop.getRouteDelay());
+      stopDetailsListAdapter = new StopDetailsListAdapter(MainActivity.this,
+          stop.getTripId(),stop.getRouteNums(),stop.getRouteNames(),stop.getRouteTime(),stop.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
       //recyclerView.setHasFixedSize(true);
-      recyclerView.setAdapter(listAdapter);
+      recyclerView.setAdapter(stopDetailsListAdapter);
 
     });
 
   }
 
-  void setBottomSheetStopDetails(Marker marker) {
+  public void setBottomSheetStopDetails(Marker marker) {
     stop = (Stop) marker.getTag();
 
     this.runOnUiThread(() -> {
+      code.setBackgroundColor(Color.GRAY);
+      code.setTextColor(Color.WHITE);
       code.setText(stop.getCode());
       name.setText(stop.getName());
+      zone.setBackground(getResources().getDrawable(R.drawable.stop_icon));
+      zone.setTextColor(Color.WHITE);
       zone.setText(stop.getZoneId());
       platform.setText(stop.getPlatformCode());
     });

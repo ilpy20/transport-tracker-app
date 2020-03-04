@@ -1,6 +1,7 @@
 package com.example.transportmodel;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.view.LayoutInflater;
@@ -11,18 +12,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.apollographql.apollo.exception.ApolloException;
+import com.example.stopmodel.Stop;
+import com.example.transporttracker.MainActivity;
 import com.example.transporttracker.R;
+import com.hsl.StopDetailsQuery;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
 public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportDetailsListAdapter.MyViewHolder> {
   private Context mContext;
   private ArrayList<Drawable> mMode;
+  private ArrayList<String> stopId;
   private ArrayList<String> mCode;
   private ArrayList<String> mName;
   private ArrayList<String> mZone;
+  private ArrayList<String> mPlatform;
   private ArrayList<String> mTime;
   private ArrayList<String> mDelay;
 
@@ -31,27 +41,31 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     TextView code;
     TextView name;
     TextView zone;
+    TextView platform;
     TextView time;
     TextView delay;
     ImageView imgMode;
 
     public MyViewHolder(View itemView) {
       super(itemView);
-      this.imgMode = (ImageView) itemView.findViewById(R.id.modeRRV);
-      this.code = (TextView) itemView.findViewById(R.id.codeRV);
-      this.name = (TextView) itemView.findViewById(R.id.nameRRV);
+      this.imgMode = itemView.findViewById(R.id.modeRRV);
+      this.code = itemView.findViewById(R.id.numRRV);
+      this.name = itemView.findViewById(R.id.nameRRV);
       this.zone = itemView.findViewById(R.id.zoneRRV);
+      this.platform = itemView.findViewById(R.id.platformRRV);
       this.time = itemView.findViewById(R.id.timeRRV);
       this.delay = itemView.findViewById(R.id.delayR);
     }
   }
 
-  public TransportDetailsListAdapter(Context mContext, ArrayList<Drawable> mode, ArrayList<String> code, ArrayList<String> name, ArrayList<String> zone, ArrayList<String> time, ArrayList<String> delay) {
+  public TransportDetailsListAdapter(Context mContext, ArrayList<String> stopId,ArrayList<String> code, ArrayList<String> name, ArrayList<String> zone,ArrayList<String> platform, ArrayList<String> time, ArrayList<String> delay) {
     this.mContext = mContext;
-    this.mMode = mode;
+    this.stopId = stopId;
+    //this.mMode = mode;
     this.mCode = code;
     this.mName = name;
     this.mZone = zone;
+    this.mPlatform = platform;
     this.mTime = time;
     this.mDelay = delay;
   }
@@ -66,18 +80,34 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
 
   @Override
   public void onBindViewHolder(final MyViewHolder holder, final int i) {
-    holder.imgMode.setImageDrawable(mMode.get(i));
+    //holder.imgMode.setImageDrawable(mMode.get(i));
     holder.code.setText(mCode.get(i));
     holder.name.setText(mName.get(i));
+    holder.zone.setBackground(mContext.getResources().getDrawable(R.drawable.stop_icon));
+    holder.zone.setTextColor(Color.WHITE);
     holder.zone.setText(mZone.get(i));
+    holder.platform.setText(mPlatform.get(i));
     holder.time.setText(mTime.get(i));
     holder.delay.setText(mDelay.get(i));
 
-    holder.itemView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        Toast.makeText(mContext, "Position : " + i, Toast.LENGTH_LONG).show();
-      }
+    holder.itemView.setOnClickListener(v -> {
+      Stop.makeStop(stopId.get(i), new Stop.Callback() {
+        @Override
+        public void onStop(@NonNull StopDetailsQuery.Data data) {
+          //data.stop().code();
+          //data.stop().name();
+          //data.stop().zoneId();
+          //data.stop().platformCode();
+          //if (mContext instanceof MainActivity) {
+          //  ((MainActivity)mContext).getStopDetails(data);
+          //}
+        }
+
+        @Override
+        public void onError(@NotNull ApolloException e) {
+        }
+      });
+      //Toast.makeText(mContext, "Position : " + i, Toast.LENGTH_LONG).show();
     });
 
   }

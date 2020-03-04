@@ -30,6 +30,7 @@ public class Stop {
   private String zoneId;
   private Mode vehicleMode;
   private String platformCode;
+  private ArrayList<String> tripId;
   private ArrayList<String> routeNums;
   private ArrayList<String> routeNames;
   private ArrayList<String> routeTime;
@@ -80,6 +81,8 @@ public class Stop {
     return name;
   }
 
+  public ArrayList<String> getTripId() { return tripId; }
+
   public ArrayList<String> getRouteNums() {
     return routeNums;
   }
@@ -102,13 +105,14 @@ public class Stop {
 
   public void makeStopDetailsArrays(@NonNull StopDetailsQuery.Data data, long unixTime) {
     if (data.stop() == null) return;
+    tripId = new ArrayList<>();
     routeNums = new ArrayList<>();
     routeNames = new ArrayList<>();
     routeTime = new ArrayList<>();
     routeDelay = new ArrayList<>();
     List<StopDetailsQuery.StoptimesWithoutPattern> nearbyRoutes = data.stop().stoptimesWithoutPatterns();
     for (int i = 0; i < nearbyRoutes.size(); i++) {
-      nearbyRoutes.get(i).trip().gtfsId();
+      tripId.add(nearbyRoutes.get(i).trip().gtfsId());
       routeNums.add(nearbyRoutes.get(i).trip().routeShortName());
       routeNames.add(nearbyRoutes.get(i).headsign());
       nearbyRoutes.get(i).scheduledArrival();

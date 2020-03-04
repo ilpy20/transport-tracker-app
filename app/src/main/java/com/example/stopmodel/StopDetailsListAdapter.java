@@ -4,20 +4,26 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
-
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.apollographql.apollo.exception.ApolloException;
+import com.example.transportmodel.Transport;
+import com.example.transporttracker.MainActivity;
 import com.example.transporttracker.R;
+import com.hsl.TransportDetailsFromMapQuery;
+import com.hsl.TransportDetailsFromStopQuery;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
 public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsListAdapter.MyViewHolder> {
   private Context mContext;
+  private ArrayList<String> tripId;
   private ArrayList<String> mNum;
   private ArrayList<String> mName;
   private ArrayList<String> mTime;
@@ -39,8 +45,9 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     }
   }
 
-  public StopDetailsListAdapter(Context mContext,ArrayList<String> num,ArrayList<String> name,ArrayList<String> time,ArrayList<String> delay) {
+  public StopDetailsListAdapter(Context mContext,ArrayList<String> tripId,ArrayList<String> num,ArrayList<String> name,ArrayList<String> time,ArrayList<String> delay) {
     this.mContext = mContext;
+    this.tripId = tripId;
     this.mNum = num;
     this.mName = name;
     this.mTime = time;
@@ -62,11 +69,27 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     holder.time.setText(mTime.get(i));
     holder.delay.setText(mDelay.get(i));
 
-    holder.itemView.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        Toast.makeText(mContext,"Position : "+i,Toast.LENGTH_LONG).show();
-      }
+    holder.itemView.setOnClickListener(v -> {
+      Transport.getTransportDetailsFromStop(tripId.get(i), new Transport.Callback() {
+        @Override
+        public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data) {
+        }
+
+        @Override
+        public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
+          //data.trip().routeShortName();
+          //data.trip().tripHeadsign();
+          //if (mContext instanceof MainActivity) {
+          //  ((MainActivity)mContext).getTransportDetailsFromStop(data);
+          //}
+        }
+
+        @Override
+        public void onError(@NotNull ApolloException e) {
+
+        }
+      });
+      //Toast.makeText(mContext,"Position : "+i,Toast.LENGTH_LONG).show();
     });
 
   }
