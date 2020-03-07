@@ -14,6 +14,7 @@ import com.hsl.type.Mode;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -30,13 +31,13 @@ public class Stop {
   private String zoneId;
   private String vehicleMode;
   private String platformCode;
-  private ArrayList<String> tripId;
-  private ArrayList<String> routeNums;
-  private ArrayList<String> routeNames;
-  private ArrayList<String> routeTime;
-  private ArrayList<String> routeDelay;
-  private Long timeArrive;
-  private BigDecimal serviceDay;
+  private static ArrayList<String> tripId;
+  private static ArrayList<String> routeNums;
+  private static ArrayList<String> routeNames;
+  private static ArrayList<String> routeTime;
+  private static ArrayList<String> routeDelay;
+  private static Long timeArrive;
+  private static BigDecimal serviceDay;
 
   private static StopDetailsQuery initializeQuery(String id) {
     return StopDetailsQuery.builder().id(id).build();
@@ -103,43 +104,38 @@ public class Stop {
     return this.location;
   }
 
-  public void makeStopDetailsArrays(@NonNull StopDetailsQuery.Data data, long unixTime) {
-    if (data.stop() == null) return;
-    tripId = new ArrayList<>();
-    routeNums = new ArrayList<>();
-    routeNames = new ArrayList<>();
-    routeTime = new ArrayList<>();
-    routeDelay = new ArrayList<>();
-    List<StopDetailsQuery.StoptimesWithoutPattern> nearbyRoutes = data.stop().stoptimesWithoutPatterns();
-    for (int i = 0; i < nearbyRoutes.size(); i++) {
-      tripId.add(nearbyRoutes.get(i).trip().gtfsId());
-      routeNums.add(nearbyRoutes.get(i).trip().routeShortName());
-      routeNames.add(nearbyRoutes.get(i).headsign());
-      nearbyRoutes.get(i).scheduledArrival();
-      serviceDay = (BigDecimal) nearbyRoutes.get(i).serviceDay();
-      if (nearbyRoutes.get(i).realtimeArrival() != null)
-        timeArrive = Long.valueOf(nearbyRoutes.get(i).realtimeArrival());
-      else timeArrive = Long.valueOf(nearbyRoutes.get(i).scheduledArrival());
-      routeTime.add(Long.toString((timeArrive+serviceDay.longValue()-unixTime) / 60) + " min");
-      if (nearbyRoutes.get(i).arrivalDelay() > 0)
-        routeDelay.add("Delayed " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
-      else if (nearbyRoutes.get(i).arrivalDelay() < 0)
-        routeDelay.add("Quicked " + Integer.toString(-nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
-      else routeDelay.add("On time");
-      nearbyRoutes.get(i).scheduledDeparture();
-      nearbyRoutes.get(i).realtimeDeparture();
-
-    }
-  }
-
   private static void makeStopDetailsQuery(StopDetailsQuery stopDetailsQuery, final Callback callback) {
     Networking.apollo().query(stopDetailsQuery).enqueue(new ApolloCall.Callback<StopDetailsQuery.Data>() {
       @Override
       public void onResponse(@NotNull Response<StopDetailsQuery.Data> response) {
         StopDetailsQuery.Data data = response.data();
         if (data == null) return;
-        //stop.makeStopDetailsArrays(data);
+        long unixTime = Instant.now().getEpochSecond();
+        tripId = new ArrayList<>();
+        routeNums = new ArrayList<>();
+        routeNames = new ArrayList<>();
+        routeTime = new ArrayList<>();
+        routeDelay = new ArrayList<>();
+        List<StopDetailsQuery.StoptimesWithoutPattern> nearbyRoutes = data.stop().stoptimesWithoutPatterns();
+        for (int i = 0; i < nearbyRoutes.size(); i++) {
+          tripId.add(nearbyRoutes.get(i).trip().gtfsId());
+          routeNums.add(nearbyRoutes.get(i).trip().routeShortName());
+          routeNames.add(nearbyRoutes.get(i).headsign());
+          nearbyRoutes.get(i).scheduledArrival();
+          serviceDay = (BigDecimal) nearbyRoutes.get(i).serviceDay();
+          if (nearbyRoutes.get(i).realtimeArrival() != null)
+            timeArrive = Long.valueOf(nearbyRoutes.get(i).realtimeArrival());
+          else timeArrive = Long.valueOf(nearbyRoutes.get(i).scheduledArrival());
+          routeTime.add(Long.toString((timeArrive+serviceDay.longValue()-unixTime) / 60) + " min");
+          if (nearbyRoutes.get(i).arrivalDelay() > 0)
+            routeDelay.add("Delayed " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
+          else if (nearbyRoutes.get(i).arrivalDelay() < 0)
+            routeDelay.add("Quicked " + Integer.toString(-nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
+          else routeDelay.add("On time");
+          nearbyRoutes.get(i).scheduledDeparture();
+          nearbyRoutes.get(i).realtimeDeparture();
 
+        }
         callback.onStop(data);
       }
 

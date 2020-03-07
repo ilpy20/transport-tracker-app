@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,23 +24,23 @@ import java.util.List;
 public class Transport {
   private String id;
   private String routeId;
-  private String routeName;
+  private static String routeName;
   private String routeMode;
   private int routeDirection;
   private String routeDisplayName;
   private int routeStart;
-  private String routeDate;
+  private static String routeDate;
   private String nextStop;
   private String stop;
-  private ArrayList<String> stopId;
-  private ArrayList<String> stopCodes;
-  private ArrayList<String> stopNames;
-  private ArrayList<String> stopZones;
-  private ArrayList<String> platformCodes;
-  private ArrayList<String> routeTime;
-  private ArrayList<String> routeDelay;
-  private Long timeArrive;
-  private Long serviceDay;
+  private static ArrayList<String> stopId;
+  private static ArrayList<String> stopCodes;
+  private static ArrayList<String> stopNames;
+  private static ArrayList<String> stopZones;
+  private static ArrayList<String> platformCodes;
+  private static ArrayList<String> routeTime;
+  private static ArrayList<String> routeDelay;
+  private static Long timeArrive;
+  private static Long serviceDay;
   private LatLng location;
 
   public Transport(String id, Double lat, Double lon) {
@@ -104,7 +105,7 @@ public class Transport {
 
   public int getRouteStart() { return routeStart; }
 
-  public String getRouteDate() { return routeDate; }
+  public static String getRouteDate() { return routeDate; }
 
   public Long getTimeArrive() { return timeArrive; }
 
@@ -148,84 +149,6 @@ public class Transport {
     return stop;
   }
 
-  public void makeTransportDetailsFromMapArrays(@NonNull TransportDetailsFromMapQuery.Data data, long unixTime){
-    if (data.fuzzyTrip() != null) {
-      stopId = new ArrayList<>();
-      stopCodes = new ArrayList<>();
-      stopNames = new ArrayList<>();
-      stopZones = new ArrayList<>();
-      platformCodes = new ArrayList<>();
-      routeTime = new ArrayList<>();
-      routeDelay = new ArrayList<>();
-      routeName = data.fuzzyTrip().tripHeadsign();
-      List<TransportDetailsFromMapQuery.Stoptime> routeList = data.fuzzyTrip().stoptimes();
-      for (int i = 0; i < routeList.size(); i++) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        try {
-          Date date = format.parse(getRouteDate() + " 00:00:00");
-          serviceDay = date.getTime() / 1000;
-        } catch (ParseException e) {
-          e.printStackTrace();
-        }
-        if (routeList.get(i).realtimeArrival() != null)
-          timeArrive = Long.valueOf(routeList.get(i).realtimeArrival());
-        else timeArrive = Long.valueOf(routeList.get(i).scheduledArrival());
-        if (timeArrive + serviceDay >= unixTime) {
-          stopId.add(routeList.get(i).stop().gtfsId());
-          stopNames.add(routeList.get(i).stop().name());
-          stopCodes.add(routeList.get(i).stop().code());
-          stopZones.add(routeList.get(i).stop().zoneId());
-          platformCodes.add(routeList.get(i).stop().platformCode());
-          routeTime.add(Long.toString((timeArrive + serviceDay - unixTime) / 60) + " min");
-          //else routeTime.add(Long.toString((unixTime-timeArrive-serviceDay)/60)+" min"+" ago");
-          if (routeList.get(i).arrivalDelay() > 0)
-            routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60) + " min");
-          else if (routeList.get(i).arrivalDelay() < 0)
-            routeDelay.add("Quicked " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
-          else routeDelay.add("On time");
-        }
-      }
-    }
-  }
-  public void makeTransportDetailsFromStopArrays(@NonNull TransportDetailsFromStopQuery.Data data, long unixTime){
-    if(data.trip()!=null){
-      stopId = new ArrayList<>();
-      stopCodes = new ArrayList<>();
-      stopNames = new ArrayList<>();
-      stopZones = new ArrayList<>();
-      platformCodes = new ArrayList<>();
-      routeTime = new ArrayList<>();
-      routeDelay = new ArrayList<>();
-      routeName = data.trip().tripHeadsign();
-      List<TransportDetailsFromStopQuery.Stoptime> routeList = data.trip().stoptimes();
-      for(int i = 0; i<routeList.size();i++) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        try {
-          Date date = format.parse(getRouteDate() + " 00:00:00");
-          serviceDay = date.getTime() / 1000;
-        } catch (ParseException e) {
-          e.printStackTrace();
-        }
-        if (routeList.get(i).realtimeArrival() != null)
-          timeArrive = Long.valueOf(routeList.get(i).realtimeArrival());
-        else timeArrive = Long.valueOf(routeList.get(i).scheduledArrival());
-        if (timeArrive + serviceDay >= unixTime) {
-          stopId.add(routeList.get(i).stop().gtfsId());
-          stopNames.add(routeList.get(i).stop().name());
-          stopCodes.add(routeList.get(i).stop().code());
-          stopZones.add(routeList.get(i).stop().zoneId());
-          platformCodes.add(routeList.get(i).stop().platformCode());
-          routeTime.add(Long.toString((timeArrive + serviceDay - unixTime) / 60) + " min");
-          //else routeTime.add(Long.toString((unixTime-timeArrive-serviceDay)/60)+" min"+" ago");
-          if (routeList.get(i).arrivalDelay() > 0)
-            routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60) + " min");
-          else if (routeList.get(i).arrivalDelay() < 0)
-            routeDelay.add("Quicked " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
-          else routeDelay.add("On time");
-        }
-      }
-    }
-  }
 
   public static void makeTransportDetailsFromMapQuery(TransportDetailsFromMapQuery transportDetailsQuery, Callback callback){
     Networking.apollo().query(transportDetailsQuery).enqueue(new ApolloCall.Callback<TransportDetailsFromMapQuery.Data>() {
@@ -233,6 +156,44 @@ public class Transport {
       public void onResponse(@NotNull Response<TransportDetailsFromMapQuery.Data> response) {
         TransportDetailsFromMapQuery.Data data = response.data();
         if(data==null) return;
+        long unixTime = Instant.now().getEpochSecond();
+        if (data.fuzzyTrip() != null) {
+          stopId = new ArrayList<>();
+          stopCodes = new ArrayList<>();
+          stopNames = new ArrayList<>();
+          stopZones = new ArrayList<>();
+          platformCodes = new ArrayList<>();
+          routeTime = new ArrayList<>();
+          routeDelay = new ArrayList<>();
+          routeName = data.fuzzyTrip().tripHeadsign();
+          List<TransportDetailsFromMapQuery.Stoptime> routeList = data.fuzzyTrip().stoptimes();
+          for (int i = 0; i < routeList.size(); i++) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            try {
+              Date date = format.parse(getRouteDate() + " 00:00:00");
+              serviceDay = date.getTime() / 1000;
+            } catch (ParseException e) {
+              e.printStackTrace();
+            }
+            if (routeList.get(i).realtimeArrival() != null)
+              timeArrive = Long.valueOf(routeList.get(i).realtimeArrival());
+            else timeArrive = Long.valueOf(routeList.get(i).scheduledArrival());
+            if (timeArrive + serviceDay >= unixTime) {
+              stopId.add(routeList.get(i).stop().gtfsId());
+              stopNames.add(routeList.get(i).stop().name());
+              stopCodes.add(routeList.get(i).stop().code());
+              stopZones.add(routeList.get(i).stop().zoneId());
+              platformCodes.add(routeList.get(i).stop().platformCode());
+              routeTime.add(Long.toString((timeArrive + serviceDay - unixTime) / 60) + " min");
+              //else routeTime.add(Long.toString((unixTime-timeArrive-serviceDay)/60)+" min"+" ago");
+              if (routeList.get(i).arrivalDelay() > 0)
+                routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60) + " min");
+              else if (routeList.get(i).arrivalDelay() < 0)
+                routeDelay.add("Quicked " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
+              else routeDelay.add("On time");
+            }
+          }
+        }
         callback.onTransportFromMap(data);
       }
 
@@ -247,6 +208,44 @@ public class Transport {
       public void onResponse(@NotNull Response<TransportDetailsFromStopQuery.Data> response) {
         TransportDetailsFromStopQuery.Data data = response.data();
         if(data==null) return;
+        long unixTime = Instant.now().getEpochSecond();
+        if(data.trip()!=null){
+          stopId = new ArrayList<>();
+          stopCodes = new ArrayList<>();
+          stopNames = new ArrayList<>();
+          stopZones = new ArrayList<>();
+          platformCodes = new ArrayList<>();
+          routeTime = new ArrayList<>();
+          routeDelay = new ArrayList<>();
+          routeName = data.trip().tripHeadsign();
+          List<TransportDetailsFromStopQuery.Stoptime> routeList = data.trip().stoptimes();
+          for(int i = 0; i<routeList.size();i++) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            try {
+              Date date = format.parse(getRouteDate() + " 00:00:00");
+              serviceDay = date.getTime() / 1000;
+            } catch (ParseException e) {
+              e.printStackTrace();
+            }
+            if (routeList.get(i).realtimeArrival() != null)
+              timeArrive = Long.valueOf(routeList.get(i).realtimeArrival());
+            else timeArrive = Long.valueOf(routeList.get(i).scheduledArrival());
+            if (timeArrive + serviceDay >= unixTime) {
+              stopId.add(routeList.get(i).stop().gtfsId());
+              stopNames.add(routeList.get(i).stop().name());
+              stopCodes.add(routeList.get(i).stop().code());
+              stopZones.add(routeList.get(i).stop().zoneId());
+              platformCodes.add(routeList.get(i).stop().platformCode());
+              routeTime.add(Long.toString((timeArrive + serviceDay - unixTime) / 60) + " min");
+              //else routeTime.add(Long.toString((unixTime-timeArrive-serviceDay)/60)+" min"+" ago");
+              if (routeList.get(i).arrivalDelay() > 0)
+                routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60) + " min");
+              else if (routeList.get(i).arrivalDelay() < 0)
+                routeDelay.add("Quicked " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
+              else routeDelay.add("On time");
+            }
+          }
+        }
         callback.onTransportFromStop(data);
       }
 
