@@ -1,6 +1,7 @@
 package com.example.stopmodel;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +17,17 @@ import com.example.transporttracker.MainActivity;
 import com.example.transporttracker.R;
 import com.hsl.TransportDetailsFromMapQuery;
 import com.hsl.TransportDetailsFromStopQuery;
+import com.hsl.type.Mode;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+import static android.graphics.Color.parseColor;
+
 public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsListAdapter.MyViewHolder> {
   private Context mContext;
+  private String vehicleMode;
   private ArrayList<String> tripId;
   private ArrayList<String> mNum;
   private ArrayList<String> mName;
@@ -45,8 +50,9 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     }
   }
 
-  public StopDetailsListAdapter(Context mContext,ArrayList<String> tripId,ArrayList<String> num,ArrayList<String> name,ArrayList<String> time,ArrayList<String> delay) {
+  public StopDetailsListAdapter(Context mContext, String vehicleMode, ArrayList<String> tripId, ArrayList<String> num, ArrayList<String> name, ArrayList<String> time, ArrayList<String> delay) {
     this.mContext = mContext;
+    this.vehicleMode = vehicleMode;
     this.tripId = tripId;
     this.mNum = num;
     this.mName = name;
@@ -64,6 +70,26 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
 
   @Override
   public void onBindViewHolder(final MyViewHolder holder, final int i) {
+    if(vehicleMode.equals("BUS")){
+      holder.num.setBackgroundColor(Color.BLUE);
+      holder.num.setTextColor(Color.WHITE);
+    }
+    if(vehicleMode.equals("TRAIN")){
+      holder.num.setBackgroundColor(Color.MAGENTA);
+      holder.num.setTextColor(Color.WHITE);
+    }
+    if(vehicleMode.equals("TRAM")){
+      holder.num.setBackgroundColor(Color.GREEN);
+      holder.num.setTextColor(Color.WHITE);
+    }
+    if(vehicleMode.equals("METRO")){
+      holder.num.setBackgroundColor(parseColor("#FF4F00"));
+      holder.num.setTextColor(Color.WHITE);
+    }
+    if(vehicleMode.equals("FERRY")){
+      holder.num.setBackgroundColor(parseColor("#ADD8E6"));
+      holder.num.setTextColor(Color.WHITE);
+    }
     holder.num.setText(mNum.get(i));
     holder.name.setText(mName.get(i));
     holder.time.setText(mTime.get(i));

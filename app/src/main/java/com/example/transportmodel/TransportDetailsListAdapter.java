@@ -81,6 +81,8 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
   @Override
   public void onBindViewHolder(final MyViewHolder holder, final int i) {
     //holder.imgMode.setImageDrawable(mMode.get(i));
+    holder.code.setBackgroundColor(Color.GRAY);
+    holder.code.setTextColor(Color.WHITE);
     holder.code.setText(mCode.get(i));
     holder.name.setText(mName.get(i));
     holder.zone.setBackground(mContext.getResources().getDrawable(R.drawable.stop_icon));

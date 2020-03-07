@@ -18,47 +18,51 @@
     <TextView
         android:id="@+id/numRRV"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginStart="5dp"
-        android:layout_weight="2"
+        android:layout_weight="0"
+        android:gravity="center"
         android:textAlignment="viewStart"
         android:textSize="18sp" />
 
     <TextView
         android:id="@+id/nameRRV"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginStart="5dp"
-        android:layout_weight="7"
+        android:layout_weight="6"
+        android:gravity="center"
         android:textAlignment="viewStart"
         android:textSize="15sp" />
 
     <TextView
         android:id="@+id/zoneRRV"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginStart="5dp"
         android:layout_weight="1"
+        android:gravity="center"
         android:textAlignment="center"
         android:textSize="18sp" />
 
     <TextView
         android:id="@+id/platformRRV"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginStart="5dp"
         android:layout_weight="1"
+        android:gravity="center"
         android:textAlignment="center"
         android:textSize="18sp" />
 
     <LinearLayout
         android:id="@+id/timeRRVL"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginStart="5dp"
         android:layout_weight="4"
@@ -68,12 +72,12 @@
             android:id="@+id/timeRRV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAlignment="viewStart" />
+            android:textAlignment="viewEnd" />
 
         <TextView
             android:id="@+id/delayR"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAlignment="viewStart" />
+            android:textAlignment="viewEnd" />
     </LinearLayout>
 </LinearLayout>
