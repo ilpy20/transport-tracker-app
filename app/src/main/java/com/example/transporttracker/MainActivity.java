@@ -166,9 +166,6 @@ public class MainActivity extends AppCompatActivity
       return;
     }
 
-    long unixTime = Instant.now().getEpochSecond();
-    transport.makeTransportDetailsFromMapArrays(data,unixTime);
-
     MainActivity.this.runOnUiThread(()->{
       //Set additional info about transport
       name.setText(transport.getRouteName());
@@ -179,6 +176,7 @@ public class MainActivity extends AppCompatActivity
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
       //recyclerView.setHasFixedSize(true);
       recyclerView.setAdapter(transportDetailsListAdapter);
+      transportDetailsListAdapter.notifyDataSetChanged();
     });
   }
 
@@ -186,9 +184,6 @@ public class MainActivity extends AppCompatActivity
       if(data==null){
         return;
       }
-
-      long unixTime = Instant.now().getEpochSecond();
-      transport.makeTransportDetailsFromStopArrays(data,unixTime);
 
       MainActivity.this.runOnUiThread(()->{
         //Set additional info about transport
@@ -200,6 +195,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         //recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(transportDetailsListAdapter);
+        transportDetailsListAdapter.notifyDataSetChanged();
       });
     }
 
@@ -273,9 +269,6 @@ public class MainActivity extends AppCompatActivity
       return;
     }
 
-    long unixTime = Instant.now().getEpochSecond();
-
-    stop.makeStopDetailsArrays(data, unixTime);
 
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
@@ -285,6 +278,7 @@ public class MainActivity extends AppCompatActivity
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
       //recyclerView.setHasFixedSize(true);
       recyclerView.setAdapter(stopDetailsListAdapter);
+      stopDetailsListAdapter.notifyDataSetChanged();
 
     });
 
