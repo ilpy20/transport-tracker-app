@@ -48,6 +48,7 @@ public class MapFragment extends Fragment {
 
   private HashMap<String, Marker> transportMarkers;
   private HashMap<String, Marker> stopMarkers;
+  //private CameraPosition cameraPosition;
 
   public MapFragment() {
     transportMarkers = new HashMap<>();
@@ -118,6 +119,7 @@ public class MapFragment extends Fragment {
   }
 
   void init() {
+    //cameraPosition = CameraPosition.builder().build();
     LatLng home = new LatLng(60.206723, 24.667192);
     googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
     googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
@@ -140,8 +142,6 @@ public class MapFragment extends Fragment {
       Marker marker = googleMap.addMarker(
         new MarkerOptions()
           .position(position)
-          .title(transport.getRouteDisplayName())
-          .snippet("route")
           .anchor(0.5f, 0.5f)
           .icon(BitmapDescriptorFactory.fromBitmap(iconTransportMarker.makeIcon(transport.getRouteDisplayName())))
       );
@@ -174,12 +174,11 @@ public class MapFragment extends Fragment {
       Marker marker = googleMap.addMarker(
         new MarkerOptions()
           .position(stop.getLocation())
-          .title(stop.getName())
-          .snippet("stop")
           .anchor(0.5f, 0.5f)
           .icon(BitmapDescriptorFactory.fromBitmap(getStopIcon()))
       );
 
+      //marker.setVisible(cameraPosition.zoom>16);
       marker.setTag(stop);
       stopMarkers.put(stop.getId(), marker);
     }

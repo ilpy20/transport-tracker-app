@@ -30,6 +30,7 @@ import com.hsl.TransportDetailsFromStopQuery;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity
   public void setMapListeners() {
     mapFragment.setOnMarkerClickListener(marker -> {
 
-      if (marker.getSnippet().equals("stop")) {
+      if (marker.getTag() instanceof Stop) {
         setBottomSheetStopDetails(marker);
         bottomSheetChecker();
       }
@@ -297,7 +298,7 @@ public class MainActivity extends AppCompatActivity
       code.setTextColor(Color.WHITE);
       code.setText(stop.getCode());
       name.setText(stop.getName());
-      zone.setBackground(getResources().getDrawable(R.drawable.stop_icon));
+      zone.setBackground(getResources().getDrawable(R.drawable.stop_icon,getApplicationContext().getTheme()));
       zone.setTextColor(Color.WHITE);
       zone.setText(stop.getZoneId());
       platform.setText(stop.getPlatformCode());

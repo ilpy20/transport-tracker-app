@@ -85,7 +85,7 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     holder.code.setTextColor(Color.WHITE);
     holder.code.setText(mCode.get(i));
     holder.name.setText(mName.get(i));
-    holder.zone.setBackground(mContext.getResources().getDrawable(R.drawable.stop_icon));
+    holder.zone.setBackground(mContext.getResources().getDrawable(R.drawable.stop_icon,mContext.getTheme()));
     holder.zone.setTextColor(Color.WHITE);
     holder.zone.setText(mZone.get(i));
     holder.platform.setText(mPlatform.get(i));
