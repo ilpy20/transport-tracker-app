@@ -33,6 +33,8 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
+import static android.graphics.Color.parseColor;
+
 public class MainActivity extends AppCompatActivity
   implements
   ActivityCompat.OnRequestPermissionsResultCallback,
@@ -204,11 +206,30 @@ public class MainActivity extends AppCompatActivity
     transport = (Transport) marker.getTag();
 
     this.runOnUiThread(()->{
-      code.setBackgroundColor(Color.WHITE);
-      code.setTextColor(Color.BLACK);
+      if(transport.getRouteMode().equals("bus")){
+        code.setBackgroundColor(Color.BLUE);
+        code.setTextColor(Color.WHITE);
+      }
+      if(transport.getRouteMode().equals("train")){
+        code.setBackgroundColor(Color.MAGENTA);
+        code.setTextColor(Color.WHITE);
+      }
+      if(transport.getRouteMode().equals("tram")){
+        code.setBackgroundColor(Color.GREEN);
+        code.setTextColor(Color.WHITE);
+      }
+      if(transport.getRouteMode().equals("metro")){
+        code.setBackgroundColor(parseColor("#FFA500"));
+        code.setTextColor(Color.WHITE);
+      }
+      if(transport.getRouteMode().equals("ferry")){
+        code.setBackgroundColor(parseColor("#ADD8E6"));
+        code.setTextColor(Color.WHITE);
+      }
       code.setText(transport.getRouteDisplayName());
       zone.setBackgroundColor(Color.WHITE);
       zone.setText("");
+      platform.setText("");
     });
 
     Transport.getTransportDetailsFromMap(transport.getRouteDate(),transport.getRouteDirection(),
@@ -258,7 +279,7 @@ public class MainActivity extends AppCompatActivity
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
       recyclerView = findViewById(R.id.recycler_view);
-      stopDetailsListAdapter = new StopDetailsListAdapter(MainActivity.this,
+      stopDetailsListAdapter = new StopDetailsListAdapter(MainActivity.this,stop.getVehicleMode(),
           stop.getTripId(),stop.getRouteNums(),stop.getRouteNames(),stop.getRouteTime(),stop.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
       //recyclerView.setHasFixedSize(true);

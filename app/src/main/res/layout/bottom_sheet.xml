@@ -25,49 +25,55 @@
             <TextView
                 android:id="@+id/code"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:elegantTextHeight="true"
-                android:fontFamily="casual"
-                android:freezesText="false"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="0"
+                android:gravity="center"
                 android:lineSpacingExtra="8sp"
-                android:textAlignment="center"
+                android:textAlignment="viewStart"
                 android:textAllCaps="true"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:autoSizeTextType="uniform" />
+                android:textSize="24sp" />
 
             <TextView
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:elegantTextHeight="true"
-                android:freezesText="false"
-                android:textAlignment="textStart"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="6"
+                android:gravity="center"
+                android:textAlignment="viewStart"
                 android:textColor="@color/design_default_color_primary_dark"
-                android:textSize="24sp"
-                app:autoSizeTextType="uniform" />
+                android:textSize="24sp" />
 
             <TextView
                 android:id="@+id/zone"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:elegantTextHeight="true"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                android:gravity="center"
                 android:textAlignment="center"
-                android:textSize="18sp"
-                app:autoSizeTextType="uniform" />
+                android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/platform"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:elegantTextHeight="true"
-                android:textAlignment="viewEnd"
-                android:textSize="14sp"
-                app:autoSizeTextType="uniform" />
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/follow_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
 
         </LinearLayout>
 

@@ -28,7 +28,7 @@ public class Stop {
   private String name;
   private String code;
   private String zoneId;
-  private Mode vehicleMode;
+  private String vehicleMode;
   private String platformCode;
   private ArrayList<String> tripId;
   private ArrayList<String> routeNums;
@@ -48,7 +48,7 @@ public class Stop {
     name = stop.name();
     code = stop.code();
     zoneId = stop.zoneId();
-    vehicleMode = stop.vehicleMode();
+    vehicleMode = String.valueOf(stop.vehicleMode());
     platformCode = stop.platformCode();
     location = new LatLng(stop.lat(), stop.lon());
   }
@@ -61,7 +61,7 @@ public class Stop {
     return zoneId;
   }
 
-  public Mode getVehicleMode() {
+  public String getVehicleMode() {
     return vehicleMode;
   }
 
