@@ -74,7 +74,7 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
       holder.num.setBackgroundColor(Color.BLUE);
       holder.num.setTextColor(Color.WHITE);
     }
-    if(vehicleMode.equals("TRAIN")){
+    if(vehicleMode.equals("RAIL")){
       holder.num.setBackgroundColor(Color.MAGENTA);
       holder.num.setTextColor(Color.WHITE);
     }
@@ -82,7 +82,7 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
       holder.num.setBackgroundColor(Color.GREEN);
       holder.num.setTextColor(Color.WHITE);
     }
-    if(vehicleMode.equals("METRO")){
+    if(vehicleMode.equals("SUBWAY")){
       holder.num.setBackgroundColor(parseColor("#FF4F00"));
       holder.num.setTextColor(Color.WHITE);
     }
