@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity
   MapFragment.OnFragmentInteractionListener
   {
 
-
+    private Handler handler = new Handler();
 
   MapFragment mapFragment;
 
@@ -229,22 +231,29 @@ public class MainActivity extends AppCompatActivity
       platform.setText("");
     });
 
-    Transport.getTransportDetailsFromMap(transport.getRouteDate(),transport.getRouteDirection(),
-        transport.getRouteId(),transport.getRouteStart(),new Transport.Callback(){
+    handler.postDelayed(new Runnable() {
       @Override
-      public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data){
-        getTransportDetailsFromMap(data);
-      }
+      public void run() {
+        Transport.getTransportDetailsFromMap(transport.getRouteDate(),transport.getRouteDirection(),
+            transport.getRouteId(),transport.getRouteStart(),new Transport.Callback(){
+              @Override
+              public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data){
+                getTransportDetailsFromMap(data);
+              }
 
-      @Override
-      public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
+              @Override
+              public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
 
-      }
+              }
 
-      @Override
-      public void onError(@NotNull ApolloException e) {
+              @Override
+              public void onError(@NotNull ApolloException e) {
+              }
+            });
+        handler.postDelayed(this,5000);
       }
-    });
+    },1000);
+
   }
 
   void doQuery() {
@@ -275,11 +284,11 @@ public class MainActivity extends AppCompatActivity
       recyclerView = findViewById(R.id.recycler_view);
       stopDetailsListAdapter = new StopDetailsListAdapter(MainActivity.this,stop.getVehicleMode(),
           stop.getTripId(),stop.getRouteNums(),stop.getRouteNames(),stop.getRouteTime(),stop.getRouteDelay());
-      recyclerView.setLayoutManager(new LinearLayoutManager(this));
+      recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
       //recyclerView.setHasFixedSize(true);
       recyclerView.setAdapter(stopDetailsListAdapter);
-      stopDetailsListAdapter.notifyDataSetChanged();
 
+      stopDetailsListAdapter.notifyDataSetChanged();
     });
 
   }
@@ -298,17 +307,24 @@ public class MainActivity extends AppCompatActivity
       platform.setText(stop.getPlatformCode());
     });
 
-
-    Stop.makeStop(stop.getGtfsId(), new Stop.Callback() {
+    handler.postDelayed(new Runnable() {
       @Override
-      public void onStop(@NonNull StopDetailsQuery.Data data) {
-        getStopDetails(data);
-      }
+      public void run() {
+        Stop.makeStop(stop.getGtfsId(), new Stop.Callback() {
+          @Override
+          public void onStop(@NonNull StopDetailsQuery.Data data) {
+            getStopDetails(data);
+          }
 
-      @Override
-      public void onError(@NotNull ApolloException e) {
+          @Override
+          public void onError(@NotNull ApolloException e) {
+          }
+        });
+        handler.postDelayed(this,5000);
       }
-    });
+    },1000);
+
+
   }
 
   @Override

@@ -119,7 +119,7 @@ public class MapFragment extends Fragment {
   }
 
   void init() {
-    //cameraPosition = CameraPosition.builder().build();
+
     LatLng home = new LatLng(60.206723, 24.667192);
     googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
     googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
@@ -177,8 +177,7 @@ public class MapFragment extends Fragment {
           .anchor(0.5f, 0.5f)
           .icon(BitmapDescriptorFactory.fromBitmap(getStopIcon()))
       );
-
-      //marker.setVisible(cameraPosition.zoom>16);
+      //googleMap.setOnCameraMoveListener(() -> marker.setVisible(googleMap.getCameraPosition().zoom>15));
       marker.setTag(stop);
       stopMarkers.put(stop.getId(), marker);
     }
