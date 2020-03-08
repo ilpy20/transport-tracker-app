@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
+import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -20,6 +22,8 @@ import android.widget.Toast;
 
 import com.example.stopmodel.Stop;
 import com.example.transportmodel.Transport;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -31,6 +35,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.maps.android.ui.IconGenerator;
 
 import java.util.HashMap;
@@ -38,6 +43,7 @@ import java.util.List;
 
 public class MapFragment extends Fragment {
   private static final int MY_LOCATION_REQUEST_CODE = 1337;
+  private FusedLocationProviderClient fusedLocationClient;
   private OnFragmentInteractionListener mListener;
   private GoogleMap googleMap;
   private MapView mMapView;
@@ -119,10 +125,20 @@ public class MapFragment extends Fragment {
   }
 
   void init() {
+    fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+    fusedLocationClient.getLastLocation().addOnSuccessListener(getActivity(), location -> {
+      if(location!=null){
+        LatLng home = new LatLng(location.getLatitude(), location.getLongitude());
+        googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
+      }
+      else{
+        LatLng home = new LatLng(60.206723, 24.667192);
+        googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
+      }
 
-    LatLng home = new LatLng(60.206723, 24.667192);
-    googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
-    googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
+    });
   }
 
   public void addTransportMarker(final Transport transport) {
