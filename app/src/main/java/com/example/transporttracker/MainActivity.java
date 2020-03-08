@@ -172,6 +172,7 @@ public class MainActivity extends AppCompatActivity
       //Set additional info about transport
       name.setText(transport.getRouteName());
       recyclerView = findViewById(R.id.recycler_view);
+      recyclerView.setAdapter(null);
       transportDetailsListAdapter = new TransportDetailsListAdapter(MainActivity.this,
           transport.getStopId(),transport.getStopCodes(),transport.getStopNames(),transport.getStopZones(),
           transport.getPlatformCodes(),transport.getRouteTime(),transport.getRouteDelay());
@@ -191,6 +192,7 @@ public class MainActivity extends AppCompatActivity
         //Set additional info about transport
         name.setText(transport.getRouteName());
         recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setAdapter(null);
         transportDetailsListAdapter = new TransportDetailsListAdapter(MainActivity.this,
             transport.getStopId(),transport.getStopCodes(),transport.getStopNames(),transport.getStopZones(),
             transport.getPlatformCodes(),transport.getRouteTime(),transport.getRouteDelay());
@@ -231,6 +233,7 @@ public class MainActivity extends AppCompatActivity
       platform.setText("");
     });
 
+    if(handler!=null)handler.removeCallbacksAndMessages(null);
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
@@ -282,6 +285,7 @@ public class MainActivity extends AppCompatActivity
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
       recyclerView = findViewById(R.id.recycler_view);
+      recyclerView.setAdapter(null);
       stopDetailsListAdapter = new StopDetailsListAdapter(MainActivity.this,stop.getVehicleMode(),
           stop.getTripId(),stop.getRouteNums(),stop.getRouteNames(),stop.getRouteTime(),stop.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
@@ -306,7 +310,7 @@ public class MainActivity extends AppCompatActivity
       zone.setText(stop.getZoneId());
       platform.setText(stop.getPlatformCode());
     });
-
+    if(handler!=null)handler.removeCallbacksAndMessages(null);
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
