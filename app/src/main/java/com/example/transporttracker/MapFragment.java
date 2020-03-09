@@ -127,12 +127,11 @@ public class MapFragment extends Fragment {
   void init() {
     fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
     fusedLocationClient.getLastLocation().addOnSuccessListener(getActivity(), location -> {
-      if(location!=null){
+      if (location != null) {
         LatLng home = new LatLng(location.getLatitude(), location.getLongitude());
         googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
-      }
-      else{
+      } else {
         LatLng home = new LatLng(60.206723, 24.667192);
         googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
@@ -226,6 +225,7 @@ public class MapFragment extends Fragment {
   public interface OnMapViewReadyCallback {
     void onMapReady();
   }
+
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
