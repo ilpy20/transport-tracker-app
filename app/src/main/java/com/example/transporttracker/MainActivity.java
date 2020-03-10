@@ -3,15 +3,19 @@ package com.example.transporttracker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -30,13 +34,9 @@ import com.hsl.StopDetailsQuery;
 import com.hsl.TransportDetailsFromMapQuery;
 import com.hsl.TransportDetailsFromStopQuery;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 
 import org.jetbrains.annotations.NotNull;
-
-import static android.graphics.Color.parseColor;
 
 public class MainActivity extends AppCompatActivity
   implements
@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity
   TextView code;
   TextView zone;
   TextView platform;
+
 
   RecyclerView recyclerView;
   StopDetailsListAdapter stopDetailsListAdapter;
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity
     mapFragment.setOnMapReadyListener(() -> setMapListeners());
   }
 
-  void bottomSheetChecker() {
+  void collapseBottomSheet() {
     if (sheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED) {
       sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
@@ -101,11 +102,11 @@ public class MainActivity extends AppCompatActivity
 
       if (marker.getTag() instanceof Stop) {
         setBottomSheetStopDetails(marker);
-        bottomSheetChecker();
       } else {
         setBottomSheetTransportDetails(marker);
-        bottomSheetChecker();
       }
+      collapseBottomSheet();
+
       return false;
     });
 
@@ -201,34 +202,46 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
+  int getTransportColor(String mode) {
+    switch (transport.getRouteMode()) {
+      default:
+      case "bus":
+        return R.color.busColor;
+      case "train":
+        return R.color.trainColor;
+      case "tram":
+        return R.color.tramColor;
+      case "metro":
+        return R.color.subwayColor;
+      case "ferry":
+        return R.color.ferryColor;
+    }
+  }
+
+  void setCodeBackground(int colorToSet, boolean isColorResource) {
+    Drawable background = code.getBackground();
+    int color = isColorResource ? ContextCompat.getColor(this, colorToSet) : colorToSet;
+    if (background instanceof ShapeDrawable) {
+      ((ShapeDrawable) background).getPaint().setColor(color);
+    } else if (background instanceof GradientDrawable) {
+      ((GradientDrawable) background).setColor(color);
+    } else if (background instanceof ColorDrawable) {
+      ((ColorDrawable) background).setColor(color);
+    }
+  }
+
   public void setBottomSheetTransportDetails(Marker marker) {
     transport = (Transport) marker.getTag();
 
     this.runOnUiThread(() -> {
-      if (transport.getRouteMode().equals("bus")) {
-        code.setBackgroundColor(Color.BLUE);
-        code.setTextColor(Color.WHITE);
-      }
-      if (transport.getRouteMode().equals("train")) {
-        code.setBackgroundColor(Color.MAGENTA);
-        code.setTextColor(Color.WHITE);
-      }
-      if (transport.getRouteMode().equals("tram")) {
-        code.setBackgroundColor(Color.GREEN);
-        code.setTextColor(Color.WHITE);
-      }
-      if (transport.getRouteMode().equals("metro")) {
-        code.setBackgroundColor(parseColor("#FFA500"));
-        code.setTextColor(Color.WHITE);
-      }
-      if (transport.getRouteMode().equals("ferry")) {
-        code.setBackgroundColor(parseColor("#ADD8E6"));
-        code.setTextColor(Color.WHITE);
-      }
+      setCodeBackground(getTransportColor(transport.getRouteMode()), true);
       code.setText(transport.getRouteDisplayName());
       zone.setBackgroundColor(Color.WHITE);
       zone.setText("");
       platform.setText("");
+      recyclerView = findViewById(R.id.recycler_view);
+      recyclerView.setAdapter(null);
+      collapseBottomSheet();
     });
 
     if (handler != null) handler.removeCallbacksAndMessages(null);
@@ -282,8 +295,6 @@ public class MainActivity extends AppCompatActivity
 
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
-      recyclerView = findViewById(R.id.recycler_view);
-      recyclerView.setAdapter(null);
       stopDetailsListAdapter = new StopDetailsListAdapter(MainActivity.this, stop.getVehicleMode(),
         stop.getTripId(), stop.getRouteNums(), stop.getRouteNames(), stop.getRouteTime(), stop.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
@@ -299,14 +310,15 @@ public class MainActivity extends AppCompatActivity
     stop = (Stop) marker.getTag();
 
     this.runOnUiThread(() -> {
-      code.setBackgroundColor(Color.GRAY);
-      code.setTextColor(Color.WHITE);
+      setCodeBackground(Color.GRAY, false);
       code.setText(stop.getCode());
       name.setText(stop.getName());
       zone.setBackground(getResources().getDrawable(R.drawable.stop_icon, getApplicationContext().getTheme()));
       zone.setTextColor(Color.WHITE);
       zone.setText(stop.getZoneId());
       platform.setText(stop.getPlatformCode());
+      recyclerView = findViewById(R.id.recycler_view);
+      collapseBottomSheet();
     });
     if (handler != null) handler.removeCallbacksAndMessages(null);
     handler.postDelayed(new Runnable() {

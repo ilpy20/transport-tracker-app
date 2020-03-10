@@ -20,19 +20,25 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp">
 
             <TextView
                 android:id="@+id/code"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="0"
+                android:background="@drawable/rounded_corners"
                 android:gravity="center"
                 android:lineSpacingExtra="8sp"
+                android:padding="8dp"
+                android:text="999"
                 android:textAlignment="viewStart"
                 android:textAllCaps="true"
+                android:textColor="#FFFFFF"
                 android:textSize="24sp" />
 
             <TextView
@@ -43,8 +49,9 @@
                 android:layout_marginEnd="5dp"
                 android:layout_weight="6"
                 android:gravity="center"
+                android:text="Bus name"
                 android:textAlignment="viewStart"
-                android:textColor="@color/design_default_color_primary_dark"
+                android:textColor="@color/busColor"
                 android:textSize="24sp" />
 
             <TextView
