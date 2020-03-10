@@ -6,12 +6,16 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -38,6 +42,8 @@ import com.google.android.gms.maps.model.VisibleRegion;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.maps.android.ui.IconGenerator;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -94,6 +100,20 @@ public class MapFragment extends Fragment {
 
   }
 
+  public void clearTransportMarkers() {
+    VisibleRegion bounds = getMapBounds();
+    ArrayList<String> markersToRemove = new ArrayList<>();
+    transportMarkers.forEach((String key, Marker marker) -> {
+        LatLng markerLocation = marker.getPosition();
+        if (!bounds.latLngBounds.contains(markerLocation)) {
+          marker.remove();
+          markersToRemove.add(key);
+        }
+      }
+    );
+    markersToRemove.forEach((String key) -> transportMarkers.remove(key));
+  }
+
   private void accessUserLocation() {
     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
       == PackageManager.PERMISSION_GRANTED) {
@@ -136,8 +156,30 @@ public class MapFragment extends Fragment {
         googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(home));
       }
-
     });
+  }
+
+  int getTransportColor(String mode) {
+    switch (mode) {
+      default:
+      case "bus":
+        return R.color.busColor;
+      case "train":
+        return R.color.trainColor;
+      case "tram":
+        return R.color.tramColor;
+      case "metro":
+        return R.color.subwayColor;
+      case "ferry":
+        return R.color.ferryColor;
+    }
+  }
+
+  Drawable getTransportIcon(Transport transport) {
+    Drawable unwrappedDrawable = AppCompatResources.getDrawable(getContext(), R.drawable.transport_icon);
+    Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
+    DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(getContext(), getTransportColor(transport.getRouteMode())));
+    return wrappedDrawable;
   }
 
   public void addTransportMarker(final Transport transport) {
@@ -148,12 +190,11 @@ public class MapFragment extends Fragment {
     if (existingMarker != null) {
       existingMarker.setPosition(position);
     } else {
-      //IconGenerator icg = new IconGenerator(getContext());
-      //icg.setColor(Color.GREEN); // green background
-      //icg.setTextAppearance(R.style.amu_Bubble_TextAppearance_Dark); // black text
-      //Bitmap bm = icg.makeIcon(transport.getRouteDisplayName());
+
       IconGenerator iconTransportMarker = new IconGenerator(getContext());
-      iconTransportMarker.setBackground(getResources().getDrawable(R.drawable.transport_icon));
+      iconTransportMarker.setBackground(getTransportIcon(transport));
+      iconTransportMarker.setTextAppearance(R.style.amu_Bubble_TextAppearance_Light);
+
       Marker marker = googleMap.addMarker(
         new MarkerOptions()
           .position(position)

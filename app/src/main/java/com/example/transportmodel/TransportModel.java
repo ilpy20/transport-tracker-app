@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 
 public class TransportModel {
-  private static final float COORDINATE_PADDING = 0.01f;
+  private static final float COORDINATE_PADDING = 0.001f;
   private ApolloSubscriptionCall<TransportSubscription.Data> subscriptionInstance = null;
 
   private HashMap<String, Transport> transportPool;
@@ -23,12 +23,12 @@ public class TransportModel {
     transportPool = new HashMap<>();
   }
 
-  private TransportSubscription initializeSubscription(LatLng farLeft, LatLng nearRight) {
+  private TransportSubscription initializeSubscription(LatLng northeast, LatLng southwest) {
     return TransportSubscription.builder()
-      .minLon(farLeft.longitude + COORDINATE_PADDING)
-      .minLat(nearRight.latitude + COORDINATE_PADDING)
-      .maxLat(farLeft.latitude + COORDINATE_PADDING)
-      .maxLon(nearRight.longitude + COORDINATE_PADDING)
+      .minLon(southwest.longitude + COORDINATE_PADDING)
+      .minLat(southwest.latitude + COORDINATE_PADDING)
+      .maxLat(northeast.latitude + COORDINATE_PADDING)
+      .maxLon(northeast.longitude + COORDINATE_PADDING)
       .build();
   }
 
@@ -80,12 +80,12 @@ public class TransportModel {
     return transport;
   }
 
-  public void subscribeToTransportEvents(LatLng farLeft, LatLng nearRight, Callback callback) {
+  public void subscribeToTransportEvents(LatLng northeast, LatLng southwest, Callback callback) {
     if (subscriptionInstance != null) {
       terminateSubscription();
     }
     subscribeToEvents(
-      initializeSubscription(farLeft, nearRight),
+      initializeSubscription(northeast, southwest),
       callback
     );
   }
