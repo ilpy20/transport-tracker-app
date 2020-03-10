@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity
     mapFragment.setOnCameraIdleListener(() -> {
       doSubscription();
       doQuery();
+      mapFragment.clearTransportMarkers();
     });
 
     mapFragment.setOnMapClickListener(latLng -> {
@@ -138,10 +139,11 @@ public class MainActivity extends AppCompatActivity
 
   void doSubscription() {
     VisibleRegion bounds = mapFragment.getMapBounds();
-    LatLng farLeft = bounds.farLeft;
-    LatLng nearRight = bounds.nearRight;
 
-    transportModel.subscribeToTransportEvents(farLeft, nearRight, new TransportModel.Callback() {
+    transportModel.subscribeToTransportEvents(
+      bounds.latLngBounds.northeast,
+      bounds.latLngBounds.southwest,
+      new TransportModel.Callback() {
       @Override
       public void onEvent(Transport transport) {
         handleTransportEvent(transport);
@@ -244,29 +246,22 @@ public class MainActivity extends AppCompatActivity
       collapseBottomSheet();
     });
 
-    if (handler != null) handler.removeCallbacksAndMessages(null);
-    handler.postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        Transport.getTransportDetailsFromMap(transport.getRouteDate(), transport.getRouteDirection(),
-          transport.getRouteId(), transport.getRouteStart(), new Transport.Callback() {
-            @Override
-            public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data) {
-              getTransportDetailsFromMap(data);
-            }
+    Transport.getTransportDetailsFromMap(transport.getRouteDate(), transport.getRouteDirection(),
+      transport.getRouteId(), transport.getRouteStart(), new Transport.Callback() {
+        @Override
+        public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data) {
+          getTransportDetailsFromMap(data);
+        }
 
-            @Override
-            public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
+        @Override
+        public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
 
-            }
+        }
 
-            @Override
-            public void onError(@NotNull ApolloException e) {
-            }
-          });
-        handler.postDelayed(this, 5000);
-      }
-    }, 1000);
+        @Override
+        public void onError(@NotNull ApolloException e) {
+        }
+      });
 
   }
 
@@ -320,25 +315,17 @@ public class MainActivity extends AppCompatActivity
       recyclerView = findViewById(R.id.recycler_view);
       collapseBottomSheet();
     });
-    if (handler != null) handler.removeCallbacksAndMessages(null);
-    handler.postDelayed(new Runnable() {
+
+    Stop.makeStop(stop.getGtfsId(), new Stop.Callback() {
       @Override
-      public void run() {
-        Stop.makeStop(stop.getGtfsId(), new Stop.Callback() {
-          @Override
-          public void onStop(@NonNull StopDetailsQuery.Data data) {
-            getStopDetails(data);
-          }
-
-          @Override
-          public void onError(@NotNull ApolloException e) {
-          }
-        });
-        handler.postDelayed(this, 5000);
+      public void onStop(@NonNull StopDetailsQuery.Data data) {
+        getStopDetails(data);
       }
-    }, 1000);
 
-
+      @Override
+      public void onError(@NotNull ApolloException e) {
+      }
+    });
   }
 
   @Override
