@@ -39,9 +39,9 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends AppCompatActivity
-  implements
-  ActivityCompat.OnRequestPermissionsResultCallback,
-  MapFragment.OnFragmentInteractionListener {
+    implements
+    ActivityCompat.OnRequestPermissionsResultCallback,
+    MapFragment.OnFragmentInteractionListener {
 
   private Handler handler = new Handler();
 
@@ -141,19 +141,19 @@ public class MainActivity extends AppCompatActivity
     VisibleRegion bounds = mapFragment.getMapBounds();
 
     transportModel.subscribeToTransportEvents(
-      bounds.latLngBounds.northeast,
-      bounds.latLngBounds.southwest,
-      new TransportModel.Callback() {
-      @Override
-      public void onEvent(Transport transport) {
-        handleTransportEvent(transport);
-      }
+        bounds.latLngBounds.northeast,
+        bounds.latLngBounds.southwest,
+        new TransportModel.Callback() {
+          @Override
+          public void onEvent(Transport transport) {
+            handleTransportEvent(transport);
+          }
 
-      @Override
-      public void onError(@NotNull ApolloException e) {
+          @Override
+          public void onError(@NotNull ApolloException e) {
 
-      }
-    });
+          }
+        });
   }
 
   void handleTransportEvent(final Transport transport) {
@@ -175,8 +175,8 @@ public class MainActivity extends AppCompatActivity
       recyclerView = findViewById(R.id.recycler_view);
       recyclerView.setAdapter(null);
       transportDetailsListAdapter = new TransportDetailsListAdapter(MainActivity.this,
-        transport.getStopId(), transport.getStopCodes(), transport.getStopNames(), transport.getStopZones(),
-        transport.getPlatformCodes(), transport.getRouteTime(), transport.getRouteDelay());
+          transport.getStopId(), transport.getStopCodes(), transport.getStopNames(), transport.getStopZones(),
+          transport.getPlatformCodes(), transport.getRouteTime(), transport.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
       //recyclerView.setHasFixedSize(true);
       recyclerView.setAdapter(transportDetailsListAdapter);
@@ -195,8 +195,8 @@ public class MainActivity extends AppCompatActivity
       recyclerView = findViewById(R.id.recycler_view);
       recyclerView.setAdapter(null);
       transportDetailsListAdapter = new TransportDetailsListAdapter(MainActivity.this,
-        transport.getStopId(), transport.getStopCodes(), transport.getStopNames(), transport.getStopZones(),
-        transport.getPlatformCodes(), transport.getRouteTime(), transport.getRouteDelay());
+          transport.getStopId(), transport.getStopCodes(), transport.getStopNames(), transport.getStopZones(),
+          transport.getPlatformCodes(), transport.getRouteTime(), transport.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
       //recyclerView.setHasFixedSize(true);
       recyclerView.setAdapter(transportDetailsListAdapter);
@@ -246,22 +246,30 @@ public class MainActivity extends AppCompatActivity
       collapseBottomSheet();
     });
 
-    Transport.getTransportDetailsFromMap(transport.getRouteDate(), transport.getRouteDirection(),
-      transport.getRouteId(), transport.getRouteStart(), new Transport.Callback() {
-        @Override
-        public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data) {
-          getTransportDetailsFromMap(data);
-        }
+    if (handler != null) handler.removeCallbacksAndMessages(null);
+    handler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        Transport.getTransportDetailsFromMap(transport.getRouteDate(), transport.getRouteDirection(),
+            transport.getRouteId(), transport.getRouteStart(), new Transport.Callback() {
+              @Override
+              public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data) {
+                getTransportDetailsFromMap(data);
+              }
 
-        @Override
-        public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
+              @Override
+              public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
 
-        }
+              }
 
-        @Override
-        public void onError(@NotNull ApolloException e) {
-        }
-      });
+              @Override
+              public void onError(@NotNull ApolloException e) {
+              }
+            });
+        handler.postDelayed(this, 5000);
+      }
+    }, 1000);
+
 
   }
 
@@ -291,7 +299,7 @@ public class MainActivity extends AppCompatActivity
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
       stopDetailsListAdapter = new StopDetailsListAdapter(MainActivity.this, stop.getVehicleMode(),
-        stop.getTripId(), stop.getRouteNums(), stop.getRouteNames(), stop.getRouteTime(), stop.getRouteDelay());
+          stop.getTripId(), stop.getRouteNums(), stop.getRouteNames(), stop.getRouteTime(), stop.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
       //recyclerView.setHasFixedSize(true);
       recyclerView.setAdapter(stopDetailsListAdapter);
@@ -316,16 +324,24 @@ public class MainActivity extends AppCompatActivity
       collapseBottomSheet();
     });
 
-    Stop.makeStop(stop.getGtfsId(), new Stop.Callback() {
+    if (handler != null) handler.removeCallbacksAndMessages(null);
+    handler.postDelayed(new Runnable() {
       @Override
-      public void onStop(@NonNull StopDetailsQuery.Data data) {
-        getStopDetails(data);
-      }
+      public void run() {
+        Stop.makeStop(stop.getGtfsId(), new Stop.Callback() {
+          @Override
+          public void onStop(@NonNull StopDetailsQuery.Data data) {
+            getStopDetails(data);
+          }
 
-      @Override
-      public void onError(@NotNull ApolloException e) {
+          @Override
+          public void onError(@NotNull ApolloException e) {
+          }
+        });
+        handler.postDelayed(this, 5000);
       }
-    });
+    },1000);
+
   }
 
   @Override
