@@ -6,31 +6,22 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 
-import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.apollographql.apollo.exception.ApolloException;
-import com.example.transportmodel.Transport;
-import com.example.transporttracker.MainActivity;
+import com.example.transportmodel.TransportTag;
 import com.example.transporttracker.R;
-import com.hsl.TransportDetailsFromMapQuery;
-import com.hsl.TransportDetailsFromStopQuery;
-import com.hsl.type.Mode;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-import static android.graphics.Color.parseColor;
-
-public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsListAdapter.MyViewHolder> {
+public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsListAdapter.MyViewHolder>implements View.OnClickListener  {
   private Context mContext;
   private String vehicleMode;
   private ArrayList<String> tripId;
@@ -38,6 +29,14 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
   private ArrayList<String> mName;
   private ArrayList<String> mTime;
   private ArrayList<String> mDelay;
+  private ArrayList<String> mRouteDirections;
+
+  private OnItemClickCallback onItemClickCallback;
+
+  @Override
+  public void onClick(View v) {
+    onItemClickCallback.onClick((TransportTag) v.getTag());
+  }
 
   public static class MyViewHolder extends RecyclerView.ViewHolder {
 
@@ -55,7 +54,7 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     }
   }
 
-  public StopDetailsListAdapter(Context mContext, String vehicleMode, ArrayList<String> tripId, ArrayList<String> num, ArrayList<String> name, ArrayList<String> time, ArrayList<String> delay) {
+  public StopDetailsListAdapter(Context mContext, String vehicleMode, ArrayList<String> tripId, ArrayList<String> num, ArrayList<String> name, ArrayList<String> time, ArrayList<String> delay, ArrayList<String> routeDirections) {
     this.mContext = mContext;
     this.vehicleMode = vehicleMode;
     this.tripId = tripId;
@@ -63,6 +62,7 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     this.mName = name;
     this.mTime = time;
     this.mDelay = delay;
+    this.mRouteDirections = routeDirections;
   }
 
   int getTransportColor(String mode) {
@@ -101,39 +101,25 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     return myViewHolder;
   }
 
+  public void setOnItemClickListener(OnItemClickCallback callback) {
+    this.onItemClickCallback = callback;
+  }
+
+  public interface OnItemClickCallback {
+    void onClick(TransportTag tag);
+  }
+
   @Override
   public void onBindViewHolder(final MyViewHolder holder, final int i) {
-
     setCodeBackground(holder,getTransportColor(vehicleMode), true);
     holder.num.setTextColor(Color.WHITE);
+
     holder.num.setText(mNum.get(i));
     holder.name.setText(mName.get(i));
     holder.time.setText(mTime.get(i));
     holder.delay.setText(mDelay.get(i));
-
-    holder.itemView.setOnClickListener(v -> {
-      Transport.getTransportDetailsFromStop(tripId.get(i), new Transport.Callback() {
-        @Override
-        public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data) {
-        }
-
-        @Override
-        public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
-          //data.trip().routeShortName();
-          //data.trip().tripHeadsign();
-          //if (mContext instanceof MainActivity) {
-          //  ((MainActivity)mContext).getTransportDetailsFromStop(data);
-          //}
-        }
-
-        @Override
-        public void onError(@NotNull ApolloException e) {
-
-        }
-      });
-      //Toast.makeText(mContext,"Position : "+i,Toast.LENGTH_LONG).show();
-    });
-
+    holder.itemView.setTag(new TransportTag(mNum.get(i), mRouteDirections.get(i)));
+    holder.itemView.setOnClickListener(this);
   }
 
   @Override

@@ -111,6 +111,8 @@ public class Transport {
 
   public int getRouteDirection() { return routeDirection; }
 
+  public String getRoutingApiCompatibleDirection() { return Integer.toString(routeDirection); };
+
   public Long getServiceDay() { return serviceDay; }
 
   public ArrayList<String> getStopId() { return stopId; }

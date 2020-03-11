@@ -12,6 +12,8 @@ import com.hsl.TransportSubscription;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -56,7 +58,7 @@ public class TransportModel {
       @Override
       public void onResponse(@NotNull Response<TransportSubscription.Data> response) {
         TransportSubscription.TransportEventsInArea event = response.data().transportEventsInArea();
-        if(event == null) return;
+        if (event == null) return;
 
         Transport transport = saveTransportData(response.data().transportEventsInArea());
         callback.onEvent(transport);
@@ -92,13 +94,19 @@ public class TransportModel {
   private Transport saveTransportData(TransportSubscription.TransportEventsInArea transportEvent) {
     Transport transport = transportPool.get(transportEvent.id());
 
-    if(transport != null) {
+    if (transport != null) {
       transport.updateFromEvent(transportEvent);
     } else {
       transport = new Transport(transportEvent);
+      transportPool.put(transportEvent.id(), transport);
     }
 
     return transport;
+  }
+
+  public void removeItems(List<String> keysToRemove) {
+    keysToRemove
+      .forEach(key -> transportPool.remove(key));
   }
 
   /**
@@ -124,6 +132,15 @@ public class TransportModel {
     if (subscriptionInstance != null) {
       subscriptionInstance.cancel();
     }
+  }
+
+  public Optional<Transport> findTransportByTag(TransportTag tag) {
+    return transportPool
+      .values()
+      .stream()
+      .filter((item) -> item.getRouteDisplayName().equals(tag.name)
+        && item.getRoutingApiCompatibleDirection().equals(tag.direction))
+      .findFirst();
   }
 
   /**

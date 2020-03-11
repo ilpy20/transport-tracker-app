@@ -16,8 +16,10 @@ import android.graphics.drawable.ShapeDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.apollographql.apollo.exception.ApolloException;
 import com.example.stopmodel.Stop;
@@ -35,13 +37,14 @@ import com.hsl.TransportDetailsFromMapQuery;
 import com.hsl.TransportDetailsFromStopQuery;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends AppCompatActivity
-    implements
-    ActivityCompat.OnRequestPermissionsResultCallback,
-    MapFragment.OnFragmentInteractionListener {
+  implements
+  ActivityCompat.OnRequestPermissionsResultCallback,
+  MapFragment.OnFragmentInteractionListener {
 
   private Handler handler = new Handler();
 
@@ -127,7 +130,8 @@ public class MainActivity extends AppCompatActivity
     mapFragment.setOnCameraIdleListener(() -> {
       doSubscription();
       doQuery();
-      mapFragment.clearTransportMarkers();
+      List<String> transportItemsRemoved = mapFragment.clearTransportMarkers();
+      transportModel.removeItems(transportItemsRemoved);
     });
 
     mapFragment.setOnMapClickListener(latLng -> {
@@ -141,19 +145,19 @@ public class MainActivity extends AppCompatActivity
     VisibleRegion bounds = mapFragment.getMapBounds();
 
     transportModel.subscribeToTransportEvents(
-        bounds.latLngBounds.northeast,
-        bounds.latLngBounds.southwest,
-        new TransportModel.Callback() {
-          @Override
-          public void onEvent(Transport transport) {
-            handleTransportEvent(transport);
-          }
+      bounds.latLngBounds.northeast,
+      bounds.latLngBounds.southwest,
+      new TransportModel.Callback() {
+        @Override
+        public void onEvent(Transport transport) {
+          handleTransportEvent(transport);
+        }
 
-          @Override
-          public void onError(@NotNull ApolloException e) {
+        @Override
+        public void onError(@NotNull ApolloException e) {
 
-          }
-        });
+        }
+      });
   }
 
   void handleTransportEvent(final Transport transport) {
@@ -175,12 +179,14 @@ public class MainActivity extends AppCompatActivity
       recyclerView = findViewById(R.id.recycler_view);
       recyclerView.setAdapter(null);
       transportDetailsListAdapter = new TransportDetailsListAdapter(MainActivity.this,
-          transport.getStopId(), transport.getStopCodes(), transport.getStopNames(), transport.getStopZones(),
-          transport.getPlatformCodes(), transport.getRouteTime(), transport.getRouteDelay());
+        transport.getStopId(), transport.getStopCodes(), transport.getStopNames(), transport.getStopZones(),
+        transport.getPlatformCodes(), transport.getRouteTime(), transport.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//      transportDetailsListAdapter.setItemClickListener(this);
       //recyclerView.setHasFixedSize(true);
       recyclerView.setAdapter(transportDetailsListAdapter);
       transportDetailsListAdapter.notifyDataSetChanged();
+
     });
   }
 
@@ -195,11 +201,12 @@ public class MainActivity extends AppCompatActivity
       recyclerView = findViewById(R.id.recycler_view);
       recyclerView.setAdapter(null);
       transportDetailsListAdapter = new TransportDetailsListAdapter(MainActivity.this,
-          transport.getStopId(), transport.getStopCodes(), transport.getStopNames(), transport.getStopZones(),
-          transport.getPlatformCodes(), transport.getRouteTime(), transport.getRouteDelay());
+        transport.getStopId(), transport.getStopCodes(), transport.getStopNames(), transport.getStopZones(),
+        transport.getPlatformCodes(), transport.getRouteTime(), transport.getRouteDelay());
       recyclerView.setLayoutManager(new LinearLayoutManager(this));
       //recyclerView.setHasFixedSize(true);
       recyclerView.setAdapter(transportDetailsListAdapter);
+
       transportDetailsListAdapter.notifyDataSetChanged();
     });
   }
@@ -251,21 +258,21 @@ public class MainActivity extends AppCompatActivity
       @Override
       public void run() {
         Transport.getTransportDetailsFromMap(transport.getRouteDate(), transport.getRouteDirection(),
-            transport.getRouteId(), transport.getRouteStart(), new Transport.Callback() {
-              @Override
-              public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data) {
-                getTransportDetailsFromMap(data);
-              }
+          transport.getRouteId(), transport.getRouteStart(), new Transport.Callback() {
+            @Override
+            public void onTransportFromMap(@NonNull TransportDetailsFromMapQuery.Data data) {
+              getTransportDetailsFromMap(data);
+            }
 
-              @Override
-              public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
+            @Override
+            public void onTransportFromStop(@NonNull TransportDetailsFromStopQuery.Data data) {
 
-              }
+            }
 
-              @Override
-              public void onError(@NotNull ApolloException e) {
-              }
-            });
+            @Override
+            public void onError(@NotNull ApolloException e) {
+            }
+          });
         handler.postDelayed(this, 5000);
       }
     }, 1000);
@@ -299,10 +306,24 @@ public class MainActivity extends AppCompatActivity
     MainActivity.this.runOnUiThread(() -> {
       // Set additional info about the stop
       stopDetailsListAdapter = new StopDetailsListAdapter(MainActivity.this, stop.getVehicleMode(),
-          stop.getTripId(), stop.getRouteNums(), stop.getRouteNames(), stop.getRouteTime(), stop.getRouteDelay());
+        stop.getTripId(), stop.getRouteNums(), stop.getRouteNames(), stop.getRouteTime(), stop.getRouteDelay(), stop.getRouteDirections());
       recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
       //recyclerView.setHasFixedSize(true);
       recyclerView.setAdapter(stopDetailsListAdapter);
+
+      stopDetailsListAdapter.setOnItemClickListener((tag) -> {
+        Optional<Transport> transport = transportModel.findTransportByTag(tag);
+
+        if (transport.isPresent()) {
+          mapFragment.focusOnTransportMarker(transport.get());
+        } else {
+          Toast toast = Toast.makeText(
+            this,
+            "Could not find transport item :(",
+            Toast.LENGTH_SHORT);
+          toast.show();
+        }
+      });
 
       stopDetailsListAdapter.notifyDataSetChanged();
     });
@@ -340,7 +361,7 @@ public class MainActivity extends AppCompatActivity
         });
         handler.postDelayed(this, 5000);
       }
-    },1000);
+    }, 1000);
 
   }
 
