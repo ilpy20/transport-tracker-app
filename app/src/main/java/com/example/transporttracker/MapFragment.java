@@ -66,7 +66,7 @@ public class MapFragment extends Fragment {
   //private CameraPosition cameraPosition;
 
   /**
-   *
+   *Initializing hashmaps for markers
    */
   public MapFragment() {
     transportMarkers = new HashMap<>();
@@ -75,11 +75,11 @@ public class MapFragment extends Fragment {
 
 
   /**
-   *
-   * @param inflater
-   * @param container
-   * @param savedInstanceState
-   * @return
+   *Initialize map
+   * @param inflater The LayoutInflater object used to inflate map in the MapFragment.
+   * @param container This is the parent view that the fragment_map should be attached to.
+   * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state as given here.
+   * @return Return the rootView for MapFragment
    */
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -114,7 +114,7 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
+   *Clean transport markers
    */
   public void clearTransportMarkers() {
     VisibleRegion bounds = getMapBounds();
@@ -131,7 +131,7 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
+   *Ask permission for user location with PermissionUtils
    */
   private void accessUserLocation() {
     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -150,10 +150,10 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
-   * @param requestCode
-   * @param permissions
-   * @param grantResults
+   *Gives result of permission
+   * @param requestCode code of request
+   * @param permissions array of permissions
+   * @param grantResults result
    */
   @Override
   public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -170,7 +170,7 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
+   *Moves to user location if have permission. Otherwise, moves to some location.
    */
   void init() {
     fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
@@ -188,9 +188,9 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
-   * @param mode
-   * @return
+   *Set up color for every mode of transport
+   * @param mode mode of transport
+   * @return int transport color
    */
   int getTransportColor(String mode) {
     switch (mode) {
@@ -209,9 +209,9 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
-   * @param transport
-   * @return
+   *Draw transport icon
+   * @param transport class which contains data about transport
+   * @return wrappedDrawable transport icon background
    */
   Drawable getTransportIcon(Transport transport) {
     Drawable unwrappedDrawable = AppCompatResources.getDrawable(getContext(), R.drawable.transport_icon);
@@ -221,8 +221,8 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
-   * @param transport
+   *Put transport marker to the map and transportMarkers hashmap
+   * @param transport class which contains data about transport
    */
   public void addTransportMarker(final Transport transport) {
     LatLng position = transport.getLocation();
@@ -250,8 +250,8 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
-   * @param stops
+   *Put stop markers to the map
+   * @param stops list of stops
    */
   public void addStopMarkers(List<Stop> stops) {
     for (Stop stop : stops) {
@@ -260,8 +260,8 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
-   * @return
+   *Generate stop icon
+   * @return Bitmap as a stop icon
    */
   Bitmap getStopIcon() {
     int height = 24;
@@ -272,8 +272,8 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
-   * @param stop
+   *Put stop marker to the map and stopMarkers hashmap
+   * @param stop class which contains data about stop
    */
   public void addStopMarker(Stop stop) {
     Marker existingMarker = stopMarkers.get(stop.getId());
@@ -294,8 +294,8 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
-   * @param callback
+   *Callback for onMapReady function
+   * @param callback OnMapViewReadyCallback callback
    */
   public void setOnMapReadyListener(OnMapViewReadyCallback callback) {
     if (ready) {
@@ -306,46 +306,46 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
-   * @param callback
+   *Callback for setOnMarkerListener(set listener on the marker click)
+   * @param callback GoogleMap.OnMarkerClickListener callback
    */
   public void setOnMarkerClickListener(GoogleMap.OnMarkerClickListener callback) {
     googleMap.setOnMarkerClickListener(callback);
   }
 
   /**
-   *
-   * @param callback
+   *Callback for setOnCameraIdleListener(set listener when camera movement has ended)
+   * @param callback GoogleMap.OnCameraIdleListener callback
    */
   public void setOnCameraIdleListener(GoogleMap.OnCameraIdleListener callback) {
     googleMap.setOnCameraIdleListener(callback);
   }
 
   /**
-   *
-   * @return
+   *Get visible region
+   * @return visible region
    */
   public VisibleRegion getMapBounds() {
     return googleMap.getProjection().getVisibleRegion();
   }
 
   /**
-   *
-   * @param callback
+   *Callback for setOnMapClickListener(set listener on the map click)
+   * @param callback GoogleMap.OnMapClickListener callback
    */
   public void setOnMapClickListener(GoogleMap.OnMapClickListener callback) {
     googleMap.setOnMapClickListener(callback);
   }
 
   /**
-   *
+   *Callback interface for onMapReady function
    */
   public interface OnMapViewReadyCallback {
     void onMapReady();
   }
 
   /**
-   *
+   *Called when a fragment is first attached to its context.
    * @param context
    */
   @Override

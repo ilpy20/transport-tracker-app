@@ -23,7 +23,7 @@ public class StopModel {
    * Initialize StopsQuery
    * @param farLeft coordinate of farLeft point
    * @param nearRight coordinate of nearRight point
-   * @return StopsQuery
+   * @return StopsQuery query of stops
    */
   private StopsQuery initializeQuery(LatLng farLeft, LatLng nearRight) {
     return StopsQuery.builder()
