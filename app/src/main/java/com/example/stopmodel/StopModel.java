@@ -12,8 +12,19 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+/**
+ * StopModel class initialize StopsQuery and convert to List<Stop>
+ * @author Ilya Pyshkin
+ * @version 1.0
+ * @since 2020-03-11
+ */
 public class StopModel {
+  /**
+   * Initialize StopsQuery
+   * @param farLeft coordinate of farLeft point
+   * @param nearRight coordinate of nearRight point
+   * @return StopsQuery
+   */
   private StopsQuery initializeQuery(LatLng farLeft, LatLng nearRight) {
     return StopsQuery.builder()
         .minLon(farLeft.longitude)
@@ -23,6 +34,11 @@ public class StopModel {
         .build();
   }
 
+  /**
+   * Making StopsQuery as a list of stops(Stop as a class)
+   * @param stopsQuery query of stops
+   * @param callback StopsQuery callback from Apollo server
+   */
   private void makeStopsQuery(StopsQuery stopsQuery, final Callback callback) {
     Networking.apollo().query(stopsQuery).enqueue(new ApolloCall.Callback<StopsQuery.Data>() {
       @Override
@@ -45,6 +61,12 @@ public class StopModel {
     });
   }
 
+  /**
+   * Initialize stopsQuery and transform to List<Stop> stops
+   * @param farLeft coordinate of farLeft point
+   * @param nearRight coordinate of nearRight point
+   * @param callback StopModel callback
+   */
   public void makeStops(LatLng farLeft, LatLng nearRight, StopModel.Callback callback) {
     makeStopsQuery(
         initializeQuery(farLeft, nearRight),
@@ -52,6 +74,9 @@ public class StopModel {
     );
   }
 
+  /**
+   * Interface of StopModel callback
+   */
   public interface Callback {
     void onStops(List<Stop> stops);
 

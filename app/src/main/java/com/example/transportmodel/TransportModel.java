@@ -13,6 +13,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
+/**
+ *
+ * @author Sergey Ushakov
+ * @version 1.0
+ * @since 2020-03-11
+ */
 public class TransportModel {
   private static final float COORDINATE_PADDING = 0.001f;
   private ApolloSubscriptionCall<TransportSubscription.Data> subscriptionInstance = null;
@@ -23,6 +29,12 @@ public class TransportModel {
     transportPool = new HashMap<>();
   }
 
+  /**
+   *
+   * @param northeast
+   * @param southwest
+   * @return
+   */
   private TransportSubscription initializeSubscription(LatLng northeast, LatLng southwest) {
     return TransportSubscription.builder()
       .minLon(southwest.longitude + COORDINATE_PADDING)
@@ -32,7 +44,11 @@ public class TransportModel {
       .build();
   }
 
-
+  /**
+   *
+   * @param transportSubscription
+   * @param callback
+   */
   private void subscribeToEvents(TransportSubscription transportSubscription, final Callback callback) {
     subscriptionInstance = Networking.apollo().subscribe(transportSubscription);
 
@@ -68,6 +84,11 @@ public class TransportModel {
     });
   }
 
+  /**
+   *
+   * @param transportEvent
+   * @return
+   */
   private Transport saveTransportData(TransportSubscription.TransportEventsInArea transportEvent) {
     Transport transport = transportPool.get(transportEvent.id());
 
@@ -80,6 +101,12 @@ public class TransportModel {
     return transport;
   }
 
+  /**
+   *
+   * @param northeast
+   * @param southwest
+   * @param callback
+   */
   public void subscribeToTransportEvents(LatLng northeast, LatLng southwest, Callback callback) {
     if (subscriptionInstance != null) {
       terminateSubscription();
@@ -90,12 +117,18 @@ public class TransportModel {
     );
   }
 
+  /**
+   *
+   */
   public void terminateSubscription() {
     if (subscriptionInstance != null) {
       subscriptionInstance.cancel();
     }
   }
 
+  /**
+   *
+   */
   public interface Callback {
     void onEvent(Transport transport);
 

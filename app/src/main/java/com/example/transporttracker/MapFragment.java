@@ -47,6 +47,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ *
+ */
 public class MapFragment extends Fragment {
   private static final int MY_LOCATION_REQUEST_CODE = 1337;
   private FusedLocationProviderClient fusedLocationClient;
@@ -62,12 +65,22 @@ public class MapFragment extends Fragment {
   private HashMap<String, Marker> stopMarkers;
   //private CameraPosition cameraPosition;
 
+  /**
+   *
+   */
   public MapFragment() {
     transportMarkers = new HashMap<>();
     stopMarkers = new HashMap<>();
   }
 
 
+  /**
+   *
+   * @param inflater
+   * @param container
+   * @param savedInstanceState
+   * @return
+   */
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
@@ -100,6 +113,9 @@ public class MapFragment extends Fragment {
 
   }
 
+  /**
+   *
+   */
   public void clearTransportMarkers() {
     VisibleRegion bounds = getMapBounds();
     ArrayList<String> markersToRemove = new ArrayList<>();
@@ -114,6 +130,9 @@ public class MapFragment extends Fragment {
     markersToRemove.forEach((String key) -> transportMarkers.remove(key));
   }
 
+  /**
+   *
+   */
   private void accessUserLocation() {
     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
       == PackageManager.PERMISSION_GRANTED) {
@@ -130,6 +149,12 @@ public class MapFragment extends Fragment {
     }
   }
 
+  /**
+   *
+   * @param requestCode
+   * @param permissions
+   * @param grantResults
+   */
   @Override
   public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
     Log.d("MapFragment", "Permission result");
@@ -144,6 +169,9 @@ public class MapFragment extends Fragment {
     }
   }
 
+  /**
+   *
+   */
   void init() {
     fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
     fusedLocationClient.getLastLocation().addOnSuccessListener(getActivity(), location -> {
@@ -159,6 +187,11 @@ public class MapFragment extends Fragment {
     });
   }
 
+  /**
+   *
+   * @param mode
+   * @return
+   */
   int getTransportColor(String mode) {
     switch (mode) {
       default:
@@ -175,6 +208,11 @@ public class MapFragment extends Fragment {
     }
   }
 
+  /**
+   *
+   * @param transport
+   * @return
+   */
   Drawable getTransportIcon(Transport transport) {
     Drawable unwrappedDrawable = AppCompatResources.getDrawable(getContext(), R.drawable.transport_icon);
     Drawable wrappedDrawable = DrawableCompat.wrap(unwrappedDrawable);
@@ -182,6 +220,10 @@ public class MapFragment extends Fragment {
     return wrappedDrawable;
   }
 
+  /**
+   *
+   * @param transport
+   */
   public void addTransportMarker(final Transport transport) {
     LatLng position = transport.getLocation();
 
@@ -207,12 +249,20 @@ public class MapFragment extends Fragment {
     }
   }
 
+  /**
+   *
+   * @param stops
+   */
   public void addStopMarkers(List<Stop> stops) {
     for (Stop stop : stops) {
       addStopMarker(stop);
     }
   }
 
+  /**
+   *
+   * @return
+   */
   Bitmap getStopIcon() {
     int height = 24;
     int width = 24;
@@ -221,6 +271,10 @@ public class MapFragment extends Fragment {
     return Bitmap.createScaledBitmap(b, width, height, false);
   }
 
+  /**
+   *
+   * @param stop
+   */
   public void addStopMarker(Stop stop) {
     Marker existingMarker = stopMarkers.get(stop.getId());
 
@@ -239,6 +293,10 @@ public class MapFragment extends Fragment {
     }
   }
 
+  /**
+   *
+   * @param callback
+   */
   public void setOnMapReadyListener(OnMapViewReadyCallback callback) {
     if (ready) {
       callback.onMapReady();
@@ -247,26 +305,49 @@ public class MapFragment extends Fragment {
     }
   }
 
+  /**
+   *
+   * @param callback
+   */
   public void setOnMarkerClickListener(GoogleMap.OnMarkerClickListener callback) {
     googleMap.setOnMarkerClickListener(callback);
   }
 
+  /**
+   *
+   * @param callback
+   */
   public void setOnCameraIdleListener(GoogleMap.OnCameraIdleListener callback) {
     googleMap.setOnCameraIdleListener(callback);
   }
 
+  /**
+   *
+   * @return
+   */
   public VisibleRegion getMapBounds() {
     return googleMap.getProjection().getVisibleRegion();
   }
 
+  /**
+   *
+   * @param callback
+   */
   public void setOnMapClickListener(GoogleMap.OnMapClickListener callback) {
     googleMap.setOnMapClickListener(callback);
   }
 
+  /**
+   *
+   */
   public interface OnMapViewReadyCallback {
     void onMapReady();
   }
 
+  /**
+   *
+   * @param context
+   */
   @Override
   public void onAttach(Context context) {
     super.onAttach(context);
@@ -278,12 +359,18 @@ public class MapFragment extends Fragment {
     }
   }
 
+  /**
+   *
+   */
   @Override
   public void onDetach() {
     super.onDetach();
     mListener = null;
   }
 
+  /**
+   *
+   */
   public interface OnFragmentInteractionListener {
     // TODO: Update argument type and name
     void onFragmentInteraction(Uri uri);
