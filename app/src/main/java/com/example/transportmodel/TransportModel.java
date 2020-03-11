@@ -104,6 +104,10 @@ public class TransportModel {
     return transport;
   }
 
+  /**
+   *
+   * @param keysToRemove
+   */
   public void removeItems(List<String> keysToRemove) {
     keysToRemove
       .forEach(key -> transportPool.remove(key));
@@ -134,6 +138,11 @@ public class TransportModel {
     }
   }
 
+  /**
+   *
+   * @param tag
+   * @return
+   */
   public Optional<Transport> findTransportByTag(TransportTag tag) {
     return transportPool
       .values()
