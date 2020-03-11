@@ -36,6 +36,7 @@ public class Stop {
   private static ArrayList<String> routeNames;
   private static ArrayList<String> routeTime;
   private static ArrayList<String> routeDelay;
+  private static ArrayList<String> routeDirections;
   private static Long timeArrive;
   private static BigDecimal serviceDay;
 
@@ -82,7 +83,9 @@ public class Stop {
     return name;
   }
 
-  public ArrayList<String> getTripId() { return tripId; }
+  public ArrayList<String> getTripId() {
+    return tripId;
+  }
 
   public ArrayList<String> getRouteNums() {
     return routeNums;
@@ -98,6 +101,10 @@ public class Stop {
 
   public ArrayList<String> getRouteDelay() {
     return routeDelay;
+  }
+
+  public ArrayList<String> getRouteDirections() {
+    return routeDirections;
   }
 
   public LatLng getLocation() {
@@ -116,21 +123,25 @@ public class Stop {
         routeNames = new ArrayList<>();
         routeTime = new ArrayList<>();
         routeDelay = new ArrayList<>();
+        routeDirections = new ArrayList<>();
+
         List<StopDetailsQuery.StoptimesWithoutPattern> nearbyRoutes = data.stop().stoptimesWithoutPatterns();
         for (int i = 0; i < nearbyRoutes.size(); i++) {
           tripId.add(nearbyRoutes.get(i).trip().gtfsId());
           routeNums.add(nearbyRoutes.get(i).trip().routeShortName());
           routeNames.add(nearbyRoutes.get(i).headsign());
+          routeDirections.add(nearbyRoutes.get(i).trip().directionId());
           nearbyRoutes.get(i).scheduledArrival();
           serviceDay = (BigDecimal) nearbyRoutes.get(i).serviceDay();
           if (nearbyRoutes.get(i).realtimeArrival() != null)
             timeArrive = Long.valueOf(nearbyRoutes.get(i).realtimeArrival());
           else timeArrive = Long.valueOf(nearbyRoutes.get(i).scheduledArrival());
-          routeTime.add(Long.toString((timeArrive+serviceDay.longValue()-unixTime) / 60) + " min");
+          routeTime.add(Long.toString((timeArrive + serviceDay.longValue() - unixTime) / 60) + " min");
           if (nearbyRoutes.get(i).arrivalDelay() > 0)
-            routeDelay.add("Delayed " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
+            routeDelay.add("Delayed " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60) + " min");
           else if (nearbyRoutes.get(i).arrivalDelay() < 0)
-            routeDelay.add("Earlier " + Integer.toString(-nearbyRoutes.get(i).arrivalDelay() / 60)+" min");
+            routeDelay.add("Earlier " + Integer.toString(-nearbyRoutes.get(i).arrivalDelay() / 60) + " min");
+
           else routeDelay.add("On time");
           nearbyRoutes.get(i).scheduledDeparture();
           nearbyRoutes.get(i).realtimeDeparture();

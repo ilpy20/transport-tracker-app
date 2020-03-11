@@ -28,6 +28,7 @@ import com.example.stopmodel.Stop;
 import com.example.transportmodel.Transport;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -46,6 +47,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MapFragment extends Fragment {
   private static final int MY_LOCATION_REQUEST_CODE = 1337;
@@ -100,18 +102,19 @@ public class MapFragment extends Fragment {
 
   }
 
-  public void clearTransportMarkers() {
+  public List<String> clearTransportMarkers() {
     VisibleRegion bounds = getMapBounds();
-    ArrayList<String> markersToRemove = new ArrayList<>();
-    transportMarkers.forEach((String key, Marker marker) -> {
-        LatLng markerLocation = marker.getPosition();
-        if (!bounds.latLngBounds.contains(markerLocation)) {
-          marker.remove();
-          markersToRemove.add(key);
-        }
-      }
-    );
-    markersToRemove.forEach((String key) -> transportMarkers.remove(key));
+
+    List<String> markersToRemove = transportMarkers
+      .entrySet()
+      .stream()
+      .filter(markerEntry -> !bounds.latLngBounds.contains(markerEntry.getValue().getPosition()))
+      .map(markerEntry -> markerEntry.getKey())
+      .collect(Collectors.toList());
+
+    markersToRemove.forEach(marker -> transportMarkers.remove(marker).remove());
+
+    return markersToRemove;
   }
 
   private void accessUserLocation() {
@@ -219,6 +222,17 @@ public class MapFragment extends Fragment {
     BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.stop_icon, getContext().getTheme());
     Bitmap b = bitmapdraw.getBitmap();
     return Bitmap.createScaledBitmap(b, width, height, false);
+  }
+
+  public void focusOnTransportMarker(Transport transport) {
+    Marker marker = transportMarkers.get(transport.getId());
+
+    if(marker != null) {
+      CameraUpdate center=
+        CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15);
+      googleMap.animateCamera(center);
+    }
+
   }
 
   public void addStopMarker(Stop stop) {
