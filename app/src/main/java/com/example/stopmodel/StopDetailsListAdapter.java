@@ -2,6 +2,10 @@ package com.example.stopmodel;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +13,7 @@ import android.widget.TextView;
 
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.apollographql.apollo.exception.ApolloException;
@@ -60,6 +65,34 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     this.mDelay = delay;
   }
 
+  int getTransportColor(String mode) {
+    switch (mode) {
+      default:
+      case "BUS":
+        return R.color.busColor;
+      case "RAIL":
+        return R.color.trainColor;
+      case "TRAM":
+        return R.color.tramColor;
+      case "SUBWAY":
+        return R.color.subwayColor;
+      case "FERRY":
+        return R.color.ferryColor;
+    }
+  }
+
+  void setCodeBackground(MyViewHolder holder, int colorToSet, boolean isColorResource) {
+    Drawable background = holder.num.getBackground();
+    int color = isColorResource ? ContextCompat.getColor(mContext, colorToSet) : colorToSet;
+    if (background instanceof ShapeDrawable) {
+      ((ShapeDrawable) background).getPaint().setColor(color);
+    } else if (background instanceof GradientDrawable) {
+      ((GradientDrawable) background).setColor(color);
+    } else if (background instanceof ColorDrawable) {
+      ((ColorDrawable) background).setColor(color);
+    }
+  }
+
   @Override
   public MyViewHolder onCreateViewHolder(final ViewGroup parent,
                                          final int viewType) {
@@ -70,26 +103,9 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
 
   @Override
   public void onBindViewHolder(final MyViewHolder holder, final int i) {
-    if(vehicleMode.equals("BUS")){
-      holder.num.setBackgroundColor(Color.BLUE);
-      holder.num.setTextColor(Color.WHITE);
-    }
-    if(vehicleMode.equals("RAIL")){
-      holder.num.setBackgroundColor(Color.MAGENTA);
-      holder.num.setTextColor(Color.WHITE);
-    }
-    if(vehicleMode.equals("TRAM")){
-      holder.num.setBackgroundColor(Color.GREEN);
-      holder.num.setTextColor(Color.WHITE);
-    }
-    if(vehicleMode.equals("SUBWAY")){
-      holder.num.setBackgroundColor(parseColor("#FF4F00"));
-      holder.num.setTextColor(Color.WHITE);
-    }
-    if(vehicleMode.equals("FERRY")){
-      holder.num.setBackgroundColor(parseColor("#ADD8E6"));
-      holder.num.setTextColor(Color.WHITE);
-    }
+
+    setCodeBackground(holder,getTransportColor(vehicleMode), true);
+    holder.num.setTextColor(Color.WHITE);
     holder.num.setText(mNum.get(i));
     holder.name.setText(mName.get(i));
     holder.time.setText(mTime.get(i));

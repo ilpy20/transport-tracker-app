@@ -2,7 +2,10 @@ package com.example.transportmodel;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +16,7 @@ import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.apollographql.apollo.exception.ApolloException;
@@ -70,6 +74,34 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     this.mDelay = delay;
   }
 
+  int getTransportColor(String mode) {
+    switch (mode) {
+      default:
+      case "bus":
+        return R.color.busColor;
+      case "train":
+        return R.color.trainColor;
+      case "tram":
+        return R.color.tramColor;
+      case "metro":
+        return R.color.subwayColor;
+      case "ferry":
+        return R.color.ferryColor;
+    }
+  }
+
+  void setCodeBackground(MyViewHolder holder, int colorToSet, boolean isColorResource) {
+    Drawable background = holder.code.getBackground();
+    int color = isColorResource ? ContextCompat.getColor(mContext, colorToSet) : colorToSet;
+    if (background instanceof ShapeDrawable) {
+      ((ShapeDrawable) background).getPaint().setColor(color);
+    } else if (background instanceof GradientDrawable) {
+      ((GradientDrawable) background).setColor(color);
+    } else if (background instanceof ColorDrawable) {
+      ((ColorDrawable) background).setColor(color);
+    }
+  }
+
   @Override
   public MyViewHolder onCreateViewHolder(final ViewGroup parent,
                                          final int viewType) {
@@ -81,7 +113,8 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
   @Override
   public void onBindViewHolder(final MyViewHolder holder, final int i) {
     //holder.imgMode.setImageDrawable(mMode.get(i));
-    holder.code.setBackgroundColor(Color.GRAY);
+
+    setCodeBackground(holder,Color.GRAY, false);
     holder.code.setTextColor(Color.WHITE);
     holder.code.setText(mCode.get(i));
     holder.name.setText(mName.get(i));

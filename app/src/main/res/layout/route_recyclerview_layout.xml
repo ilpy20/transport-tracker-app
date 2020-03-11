@@ -19,6 +19,7 @@
         android:id="@+id/numRRV"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:background="@drawable/rounded_corners"
         android:layout_gravity="center"
         android:layout_marginStart="5dp"
         android:layout_weight="0"
