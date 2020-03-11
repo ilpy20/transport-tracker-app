@@ -241,7 +241,7 @@ public class Transport {
               if (routeList.get(i).arrivalDelay() > 0)
                 routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60) + " min");
               else if (routeList.get(i).arrivalDelay() < 0)
-                routeDelay.add("Quicked " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
+                routeDelay.add("Earlier " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
               else routeDelay.add("On time");
             }
           }
