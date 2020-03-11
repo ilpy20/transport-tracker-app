@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.media.Image;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,7 +63,7 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     }
   }
 
-  public TransportDetailsListAdapter(Context mContext, ArrayList<String> stopId,ArrayList<String> code, ArrayList<String> name, ArrayList<String> zone,ArrayList<String> platform, ArrayList<String> time, ArrayList<String> delay) {
+  public TransportDetailsListAdapter(Context mContext, ArrayList<String> stopId, ArrayList<String> code, ArrayList<String> name, ArrayList<String> zone, ArrayList<String> platform, ArrayList<String> time, ArrayList<String> delay) {
     this.mContext = mContext;
     this.stopId = stopId;
     //this.mMode = mode;
@@ -118,33 +119,16 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     holder.code.setTextColor(Color.WHITE);
     holder.code.setText(mCode.get(i));
     holder.name.setText(mName.get(i));
-    holder.zone.setBackground(mContext.getResources().getDrawable(R.drawable.stop_icon,mContext.getTheme()));
+    holder.zone.setBackground(mContext.getResources().getDrawable(R.drawable.stop_icon, mContext.getTheme()));
     holder.zone.setTextColor(Color.WHITE);
     holder.zone.setText(mZone.get(i));
     holder.platform.setText(mPlatform.get(i));
     holder.time.setText(mTime.get(i));
     holder.delay.setText(mDelay.get(i));
+  }
 
-    holder.itemView.setOnClickListener(v -> {
-      Stop.makeStop(stopId.get(i), new Stop.Callback() {
-        @Override
-        public void onStop(@NonNull StopDetailsQuery.Data data) {
-          //data.stop().code();
-          //data.stop().name();
-          //data.stop().zoneId();
-          //data.stop().platformCode();
-          //if (mContext instanceof MainActivity) {
-          //  ((MainActivity)mContext).getStopDetails(data);
-          //}
-        }
-
-        @Override
-        public void onError(@NotNull ApolloException e) {
-        }
-      });
-      //Toast.makeText(mContext, "Position : " + i, Toast.LENGTH_LONG).show();
-    });
-
+  public interface ClickCallback {
+    void onClick(View v);
   }
 
   @Override
