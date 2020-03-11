@@ -15,6 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ *
+ * @author Sergey Ushakov
+ * @version 1.0
+ * @since 2020-03-11
+ */
 public class TransportModel {
   private static final float COORDINATE_PADDING = 0.001f;
   private ApolloSubscriptionCall<TransportSubscription.Data> subscriptionInstance = null;
@@ -25,6 +31,12 @@ public class TransportModel {
     transportPool = new HashMap<>();
   }
 
+  /**
+   *
+   * @param northeast
+   * @param southwest
+   * @return
+   */
   private TransportSubscription initializeSubscription(LatLng northeast, LatLng southwest) {
     return TransportSubscription.builder()
       .minLon(southwest.longitude + COORDINATE_PADDING)
@@ -34,7 +46,11 @@ public class TransportModel {
       .build();
   }
 
-
+  /**
+   *
+   * @param transportSubscription
+   * @param callback
+   */
   private void subscribeToEvents(TransportSubscription transportSubscription, final Callback callback) {
     subscriptionInstance = Networking.apollo().subscribe(transportSubscription);
 
@@ -70,6 +86,11 @@ public class TransportModel {
     });
   }
 
+  /**
+   *
+   * @param transportEvent
+   * @return
+   */
   private Transport saveTransportData(TransportSubscription.TransportEventsInArea transportEvent) {
     Transport transport = transportPool.get(transportEvent.id());
 
@@ -83,11 +104,21 @@ public class TransportModel {
     return transport;
   }
 
+  /**
+   *
+   * @param keysToRemove
+   */
   public void removeItems(List<String> keysToRemove) {
     keysToRemove
       .forEach(key -> transportPool.remove(key));
   }
 
+  /**
+   *
+   * @param northeast
+   * @param southwest
+   * @param callback
+   */
   public void subscribeToTransportEvents(LatLng northeast, LatLng southwest, Callback callback) {
     if (subscriptionInstance != null) {
       terminateSubscription();
@@ -98,12 +129,20 @@ public class TransportModel {
     );
   }
 
+  /**
+   *
+   */
   public void terminateSubscription() {
     if (subscriptionInstance != null) {
       subscriptionInstance.cancel();
     }
   }
 
+  /**
+   *
+   * @param tag
+   * @return
+   */
   public Optional<Transport> findTransportByTag(TransportTag tag) {
     return transportPool
       .values()
@@ -113,6 +152,9 @@ public class TransportModel {
       .findFirst();
   }
 
+  /**
+   *
+   */
   public interface Callback {
     void onEvent(Transport transport);
 
