@@ -274,6 +274,10 @@ public class MapFragment extends Fragment {
     return Bitmap.createScaledBitmap(b, width, height, false);
   }
 
+  /**
+   * 
+   * @param transport
+   */
   public void focusOnTransportMarker(Transport transport) {
     Marker marker = transportMarkers.get(transport.getId());
 
