@@ -8,6 +8,8 @@ import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity
   ActivityCompat.OnRequestPermissionsResultCallback,
   MapFragment.OnFragmentInteractionListener {
 
+  private static final int MY_LOCATION_REQUEST_CODE = 1337;
   private Handler handler = new Handler();
 
   MapFragment mapFragment;
@@ -110,6 +113,19 @@ public class MainActivity extends AppCompatActivity
   void collapseBottomSheet() {
     if (sheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED) {
       sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+  }
+
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    Log.d("MapFragment", "Permission result");
+    if (permissions.length == 1 &&
+      permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) &&
+      grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+      mapFragment.enableLocation();
+    } else {
+      Toast.makeText(this, "Could not get location", Toast.LENGTH_SHORT);
     }
   }
 

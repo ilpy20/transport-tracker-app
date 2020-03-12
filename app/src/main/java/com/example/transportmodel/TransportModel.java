@@ -68,6 +68,8 @@ public class TransportModel {
         if (event == null) return;
 
         Transport transport = saveTransportData(response.data().transportEventsInArea());
+
+        if(transport == null) return;
         callback.onEvent(transport);
       }
 
@@ -107,9 +109,15 @@ public class TransportModel {
    */
   private Transport saveTransportData(TransportSubscription.TransportEventsInArea transportEvent) {
     Transport transport = transportPool.get(transportEvent.id());
+    if (transportEvent.lat() == null || transportEvent.lon() == null) return null;
 
     if (transport != null) {
+      try {
       transport.updateFromEvent(transportEvent);
+
+      } catch (NullPointerException e) {
+        // Do nothing
+      }
     } else {
       transport = new Transport(transportEvent);
       transportPool.put(transportEvent.id(), transport);
