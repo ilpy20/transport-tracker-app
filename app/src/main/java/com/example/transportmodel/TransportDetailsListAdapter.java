@@ -30,6 +30,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+/**
+ * TransportDetailsListAdapter set up recycler view in transport bottom sheet
+ * @author Ilya Pyshkin, Sergey Ushakov
+ * @version 1.0
+ * @since 2020-03-12
+ */
 public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportDetailsListAdapter.MyViewHolder> {
   private Context mContext;
   private ArrayList<Drawable> mMode;
@@ -41,6 +47,12 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
   private ArrayList<String> mTime;
   private ArrayList<String> mDelay;
 
+  /**
+   * TransportDetailsListAdapter set up recycler view in transport bottom sheet
+   * @author Ilya Pyshkin, Sergey Ushakov
+   * @version 1.0
+   * @since 2020-03-12
+   */
   public static class MyViewHolder extends RecyclerView.ViewHolder {
 
     TextView code;
@@ -51,6 +63,10 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     TextView delay;
     ImageView imgMode;
 
+    /**
+     * set up MyViewHolder
+     * @param itemView view of the item in recycler view
+     */
     public MyViewHolder(View itemView) {
       super(itemView);
       this.imgMode = itemView.findViewById(R.id.modeRRV);
@@ -63,7 +79,20 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     }
   }
 
-  public TransportDetailsListAdapter(Context mContext, ArrayList<String> stopId, ArrayList<String> code, ArrayList<String> name, ArrayList<String> zone, ArrayList<String> platform, ArrayList<String> time, ArrayList<String> delay) {
+  /**
+   * Set up TransportDetailsListAdapter
+   * @param mContext context
+   * @param stopId ArrayList<String>
+   * @param code ArrayList<String>
+   * @param name ArrayList<String>
+   * @param zone ArrayList<String>
+   * @param platform ArrayList<String>
+   * @param time ArrayList<String>
+   * @param delay ArrayList<String>
+   */
+  public TransportDetailsListAdapter(Context mContext, ArrayList<String> stopId, ArrayList<String> code,
+                                     ArrayList<String> name, ArrayList<String> zone, ArrayList<String> platform,
+                                     ArrayList<String> time, ArrayList<String> delay) {
     this.mContext = mContext;
     this.stopId = stopId;
     //this.mMode = mode;
@@ -75,22 +104,12 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     this.mDelay = delay;
   }
 
-  int getTransportColor(String mode) {
-    switch (mode) {
-      default:
-      case "bus":
-        return R.color.busColor;
-      case "train":
-        return R.color.trainColor;
-      case "tram":
-        return R.color.tramColor;
-      case "metro":
-        return R.color.subwayColor;
-      case "ferry":
-        return R.color.ferryColor;
-    }
-  }
-
+  /**
+   * Set code background
+   * @param holder MyViewHolder holder of my view
+   * @param colorToSet int
+   * @param isColorResource boolean
+   */
   void setCodeBackground(MyViewHolder holder, int colorToSet, boolean isColorResource) {
     Drawable background = holder.code.getBackground();
     int color = isColorResource ? ContextCompat.getColor(mContext, colorToSet) : colorToSet;
@@ -103,6 +122,12 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     }
   }
 
+  /**
+   * Called when RecyclerView needs a new RecyclerView.ViewHolder to represent an item.
+   * @param parent ViewGroup
+   * @param viewType int
+   * @return myViewHolder
+   */
   @Override
   public MyViewHolder onCreateViewHolder(final ViewGroup parent,
                                          final int viewType) {
@@ -111,6 +136,11 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     return myViewHolder;
   }
 
+  /**
+   * Put data from arrays to item
+   * @param holder MyViewHolder
+   * @param i int number of item
+   */
   @Override
   public void onBindViewHolder(final MyViewHolder holder, final int i) {
     //holder.imgMode.setImageDrawable(mMode.get(i));
@@ -127,10 +157,17 @@ public class TransportDetailsListAdapter extends RecyclerView.Adapter<TransportD
     holder.delay.setText(mDelay.get(i));
   }
 
+  /**
+   * Click callback (in future)
+   */
   public interface ClickCallback {
     void onClick(View v);
   }
 
+  /**
+   * Count items in recycler view
+   * @return mCode == null ? 0 : mCode.size()
+   */
   @Override
   public int getItemCount() {
     return mCode == null ? 0 : mCode.size();
