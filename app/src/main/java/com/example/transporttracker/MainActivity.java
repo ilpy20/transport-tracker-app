@@ -435,7 +435,7 @@ public class MainActivity extends AppCompatActivity
   }
 
   /**
-   * Required for MapFragment to work 🤷‍
+   * Required for MapFragment to work????????
    * @param uri Uri
    */
   @Override
