@@ -50,7 +50,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *
+ * MapFragment works with map
+ * @author Sergey Ushakov, Ilya Pyshkin, Mahamudul Alam
+ * @version 1.0
+ * @since 2020-03-12
  */
 public class MapFragment extends Fragment {
   private static final int MY_LOCATION_REQUEST_CODE = 1337;
@@ -117,6 +120,7 @@ public class MapFragment extends Fragment {
 
   /**
    *Clean transport markers
+   * @return markersToRemove
    */
   public List<String> clearTransportMarkers() {
     VisibleRegion bounds = getMapBounds();
@@ -137,7 +141,8 @@ public class MapFragment extends Fragment {
    *Ask permission for user location with PermissionUtils
    */
   private void accessUserLocation() {
-    if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+    MainActivity mContext = (MainActivity) getActivity();
+    if (ContextCompat.checkSelfPermission(mContext.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
       == PackageManager.PERMISSION_GRANTED) {
       Log.d("MapFragment", "Permission granted already");
 
@@ -225,7 +230,7 @@ public class MapFragment extends Fragment {
 
   /**
    *Put transport marker to the map and transportMarkers hashmap
-   * @param transport class which contains data about transport
+   * @param transport Transport class which contains data about transport
    */
   public void addTransportMarker(final Transport transport) {
     LatLng position = transport.getLocation();
@@ -254,7 +259,7 @@ public class MapFragment extends Fragment {
 
   /**
    *Put stop markers to the map
-   * @param stops list of stops
+   * @param stops List<Stop>
    */
   public void addStopMarkers(List<Stop> stops) {
     for (Stop stop : stops) {
@@ -275,8 +280,8 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   * 
-   * @param transport
+   *Focusing on transport marker
+   * @param transport Transport class which contains data about transport
    */
   public void focusOnTransportMarker(Transport transport) {
     Marker marker = transportMarkers.get(transport.getId());
@@ -291,7 +296,7 @@ public class MapFragment extends Fragment {
 
   /**
    *Put stop marker to the map and stopMarkers hashmap
-   * @param stop class which contains data about stop
+   * @param stop Stop class which contains data about stop
    */
   public void addStopMarker(Stop stop) {
     Marker existingMarker = stopMarkers.get(stop.getId());
@@ -364,7 +369,7 @@ public class MapFragment extends Fragment {
 
   /**
    *Called when a fragment is first attached to its context.
-   * @param context
+   * @param context context
    */
   @Override
   public void onAttach(Context context) {
@@ -378,7 +383,7 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
+   * Called when the fragment is no longer attached to its activity.
    */
   @Override
   public void onDetach() {
@@ -387,7 +392,7 @@ public class MapFragment extends Fragment {
   }
 
   /**
-   *
+   * Required for MapFragment to work 🤷‍
    */
   public interface OnFragmentInteractionListener {
     // TODO: Update argument type and name
