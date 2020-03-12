@@ -41,6 +41,9 @@ import java.util.Optional;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ *
+ */
 public class MainActivity extends AppCompatActivity
   implements
   ActivityCompat.OnRequestPermissionsResultCallback,
@@ -66,6 +69,10 @@ public class MainActivity extends AppCompatActivity
   StopDetailsListAdapter stopDetailsListAdapter;
   TransportDetailsListAdapter transportDetailsListAdapter;
 
+  /**
+   * Launching program
+   * @param savedInstanceState Bundle
+   */
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -90,16 +97,25 @@ public class MainActivity extends AppCompatActivity
     platform = findViewById(R.id.platform);
   }
 
+  /**
+   * initializing map
+   */
   void initMap() {
     mapFragment.setOnMapReadyListener(() -> setMapListeners());
   }
 
+  /**
+   * Collapse Bottom Sheet
+   */
   void collapseBottomSheet() {
     if (sheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED) {
       sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
   }
 
+  /**
+   * set bottom sheet by type of marker
+   */
   public void setMapListeners() {
     mapFragment.setOnMarkerClickListener(marker -> {
 
@@ -113,6 +129,7 @@ public class MainActivity extends AppCompatActivity
       return false;
     });
 
+    //adding bottom sheet callback
     sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
       @Override
       public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -127,6 +144,7 @@ public class MainActivity extends AppCompatActivity
       }
     });
 
+    //when camera stops show transport and stop markers
     mapFragment.setOnCameraIdleListener(() -> {
       doSubscription();
       doQuery();
@@ -134,6 +152,7 @@ public class MainActivity extends AppCompatActivity
       transportModel.removeItems(transportItemsRemoved);
     });
 
+    //when clicking on map if bottom sheet not hided hide it
     mapFragment.setOnMapClickListener(latLng -> {
       if (sheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
         sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
@@ -141,6 +160,9 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
+  /**
+   * call subscription to show transport markers on visible region
+   */
   void doSubscription() {
     VisibleRegion bounds = mapFragment.getMapBounds();
 
@@ -160,14 +182,26 @@ public class MainActivity extends AppCompatActivity
       });
   }
 
+  /**
+   * add transport markers on the map
+   * @param transport Transport class which contains data about transport
+   */
   void handleTransportEvent(final Transport transport) {
     this.runOnUiThread(() -> mapFragment.addTransportMarker(transport));
   }
 
+  /**
+   * add stop markers on the map
+   * @param stops List<Stop>
+   */
   void handleStopsResponse(final List<Stop> stops) {
     MainActivity.this.runOnUiThread(() -> mapFragment.addStopMarkers(stops));
   }
 
+  /**
+   * Get arrays from Transport class and put it to transportDetailsListAdapter
+   * @param data TransportDetailsFromMapQuery.Data (data from TransportDetailsFromMapQuery)
+   */
   public void getTransportDetailsFromMap(final TransportDetailsFromMapQuery.Data data) {
     if (data == null) {
       return;
@@ -190,6 +224,10 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
+  /**
+   * Get arrays from Transport class and put it to transportDetailsListAdapter (in future)
+   * @param data TransportDetailsFromStopQuery.Data (data from TransportDetailsFromStopQuery)
+   */
   public void getTransportDetailsFromStop(final TransportDetailsFromStopQuery.Data data) {
     if (data == null) {
       return;
@@ -211,6 +249,11 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
+  /**
+   * get transport color by transport mode
+   * @param mode String
+   * @return int Color
+   */
   int getTransportColor(String mode) {
     switch (transport.getRouteMode()) {
       default:
@@ -227,6 +270,11 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
+  /**
+   * Set code background
+   * @param colorToSet int
+   * @param isColorResource boolean
+   */
   void setCodeBackground(int colorToSet, boolean isColorResource) {
     Drawable background = code.getBackground();
     int color = isColorResource ? ContextCompat.getColor(this, colorToSet) : colorToSet;
@@ -239,10 +287,15 @@ public class MainActivity extends AppCompatActivity
     }
   }
 
+  /**
+   * Set up transport bottom sheet
+   * @param marker Marker
+   */
   public void setBottomSheetTransportDetails(Marker marker) {
     transport = (Transport) marker.getTag();
 
     this.runOnUiThread(() -> {
+      //put data into the header of bottom sheet
       setCodeBackground(getTransportColor(transport.getRouteMode()), true);
       code.setText(transport.getRouteDisplayName());
       zone.setBackgroundColor(Color.WHITE);
@@ -253,7 +306,9 @@ public class MainActivity extends AppCompatActivity
       collapseBottomSheet();
     });
 
+    //if handler not null remove it
     if (handler != null) handler.removeCallbacksAndMessages(null);
+    //async task with recycler view. refresh data every 5 seconds
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
@@ -280,6 +335,9 @@ public class MainActivity extends AppCompatActivity
 
   }
 
+  /**
+   * call query to set up list of stops
+   */
   void doQuery() {
     VisibleRegion bounds = mapFragment.getMapBounds();
     LatLng farLeft = bounds.farLeft;
@@ -297,6 +355,10 @@ public class MainActivity extends AppCompatActivity
     });
   }
 
+  /**
+   * Get arrays from Stop class and put it to stopDetailsListAdapter
+   * @param data StopDetailsQuery.Data (data from StopDetailsQuery)
+   */
   public void getStopDetails(final StopDetailsQuery.Data data) {
     if (data == null) {
       return;
@@ -330,10 +392,15 @@ public class MainActivity extends AppCompatActivity
 
   }
 
+  /**
+   * Set up stop bottom sheet
+   * @param marker Marker
+   */
   public void setBottomSheetStopDetails(Marker marker) {
     stop = (Stop) marker.getTag();
 
     this.runOnUiThread(() -> {
+      //put data into the header of bottom sheet
       setCodeBackground(Color.GRAY, false);
       code.setText(stop.getCode());
       name.setText(stop.getName());
@@ -345,7 +412,9 @@ public class MainActivity extends AppCompatActivity
       collapseBottomSheet();
     });
 
+    //if handler not null remove it
     if (handler != null) handler.removeCallbacksAndMessages(null);
+    //async task with recycler view. refresh data every 5 seconds
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
@@ -365,8 +434,12 @@ public class MainActivity extends AppCompatActivity
 
   }
 
+  /**
+   * Required for MapFragment to work????????
+   * @param uri Uri
+   */
   @Override
   public void onFragmentInteraction(Uri uri) {
-    // Required for MapFragment to work 🤷‍
+
   }
 }

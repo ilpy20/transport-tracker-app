@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- *
+ * TransportModel class initialize and communicate with transport subscription
  * @author Sergey Ushakov
  * @version 1.0
- * @since 2020-03-11
+ * @since 2020-03-12
  */
 public class TransportModel {
   private static final float COORDINATE_PADDING = 0.001f;
@@ -27,15 +27,18 @@ public class TransportModel {
 
   private HashMap<String, Transport> transportPool;
 
+  /**
+   *Initializing hashmap for transport data
+   */
   public TransportModel() {
     transportPool = new HashMap<>();
   }
 
   /**
-   *
-   * @param northeast
-   * @param southwest
-   * @return
+   * Initialize subscription for transport
+   * @param northeast coordinate of northeast point
+   * @param southwest coordinate of southwest point
+   * @return TransportSubscription
    */
   private TransportSubscription initializeSubscription(LatLng northeast, LatLng southwest) {
     return TransportSubscription.builder()
@@ -47,14 +50,18 @@ public class TransportModel {
   }
 
   /**
-   *
-   * @param transportSubscription
-   * @param callback
+   * Subscribe to events
+   * @param transportSubscription transport subscription
+   * @param callback TransportModel callback
    */
   private void subscribeToEvents(TransportSubscription transportSubscription, final Callback callback) {
     subscriptionInstance = Networking.apollo().subscribe(transportSubscription);
 
     subscriptionInstance.execute(new ApolloSubscriptionCall.Callback<TransportSubscription.Data>() {
+      /**
+       * Gets called when GraphQL response is received and parsed successfully.
+       * @param response the GraphQL response
+       */
       @Override
       public void onResponse(@NotNull Response<TransportSubscription.Data> response) {
         TransportSubscription.TransportEventsInArea event = response.data().transportEventsInArea();
@@ -64,6 +71,10 @@ public class TransportModel {
         callback.onEvent(transport);
       }
 
+      /**
+       * Gets called when an unexpected exception occurs while creating the request or processing the response.
+       * @param e ApolloException
+       */
       @Override
       public void onFailure(@NotNull ApolloException e) {
         callback.onError(e);
@@ -79,6 +90,9 @@ public class TransportModel {
 
       }
 
+      /**
+       * Print "Connected to subscription" then connection is successful
+       */
       @Override
       public void onConnected() {
         System.out.println("Connected to subscription");
@@ -87,9 +101,9 @@ public class TransportModel {
   }
 
   /**
-   *
-   * @param transportEvent
-   * @return
+   * Save data about transport
+   * @param transportEvent transport subscription
+   * @return transport class which contains data about transport
    */
   private Transport saveTransportData(TransportSubscription.TransportEventsInArea transportEvent) {
     Transport transport = transportPool.get(transportEvent.id());
@@ -105,8 +119,8 @@ public class TransportModel {
   }
 
   /**
-   *
-   * @param keysToRemove
+   * Remove items from list keysToRemove(removing transport data from transportPool)
+   * @param keysToRemove List<String>
    */
   public void removeItems(List<String> keysToRemove) {
     keysToRemove
@@ -114,10 +128,10 @@ public class TransportModel {
   }
 
   /**
-   *
-   * @param northeast
-   * @param southwest
-   * @param callback
+   * Subscribe to transport events
+   * @param northeast coordinate of northeast point
+   * @param southwest coordinate of southwest point
+   * @param callback TransportModel callback
    */
   public void subscribeToTransportEvents(LatLng northeast, LatLng southwest, Callback callback) {
     if (subscriptionInstance != null) {
@@ -130,7 +144,7 @@ public class TransportModel {
   }
 
   /**
-   *
+   *Terminating transport subscription
    */
   public void terminateSubscription() {
     if (subscriptionInstance != null) {
@@ -139,9 +153,9 @@ public class TransportModel {
   }
 
   /**
-   *
-   * @param tag
-   * @return
+   * Set some data about transport
+   * @param tag Transport tag(stored name and direction of the transport)
+   * @return Optional<Transport>
    */
   public Optional<Transport> findTransportByTag(TransportTag tag) {
     return transportPool
@@ -153,7 +167,7 @@ public class TransportModel {
   }
 
   /**
-   *
+   *Callback interface
    */
   public interface Callback {
     void onEvent(Transport transport);
