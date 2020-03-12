@@ -21,6 +21,12 @@ import com.example.transporttracker.R;
 
 import java.util.ArrayList;
 
+/**
+ * StopDetailsListAdapter set up recycler view in stop bottom sheet
+ * @author Ilya Pyshkin, Sergey Ushakov
+ * @version 1.0
+ * @since 2020-03-12
+ */
 public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsListAdapter.MyViewHolder>implements View.OnClickListener  {
   private Context mContext;
   private String vehicleMode;
@@ -33,11 +39,18 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
 
   private OnItemClickCallback onItemClickCallback;
 
+  /**
+   * Show transport marker by clicking item
+   * @param v view of item
+   */
   @Override
   public void onClick(View v) {
     onItemClickCallback.onClick((TransportTag) v.getTag());
   }
 
+  /**
+   * Set up MyViewHolder
+   */
   public static class MyViewHolder extends RecyclerView.ViewHolder {
 
     TextView num;
@@ -45,6 +58,10 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     TextView time;
     TextView delay;
 
+    /**
+     * Find view in item by id
+     * @param itemView view of item
+     */
     public MyViewHolder(View itemView) {
       super(itemView);
       this.num = itemView.findViewById(R.id.codeRV);
@@ -54,6 +71,17 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     }
   }
 
+  /**
+   * Set up StopDetailsListAdapter
+   * @param mContext context
+   * @param vehicleMode vehicle mode
+   * @param tripId ArrayList<String>
+   * @param num ArrayList<String>
+   * @param name ArrayList<String>
+   * @param time ArrayList<String>
+   * @param delay ArrayList<String>
+   * @param routeDirections ArrayList<String>
+   */
   public StopDetailsListAdapter(Context mContext, String vehicleMode, ArrayList<String> tripId, ArrayList<String> num, ArrayList<String> name, ArrayList<String> time, ArrayList<String> delay, ArrayList<String> routeDirections) {
     this.mContext = mContext;
     this.vehicleMode = vehicleMode;
@@ -65,6 +93,11 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     this.mRouteDirections = routeDirections;
   }
 
+  /**
+   * get transport color by transport mode
+   * @param mode String
+   * @return int Color
+   */
   int getTransportColor(String mode) {
     switch (mode) {
       default:
@@ -81,6 +114,12 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     }
   }
 
+  /**
+   * Set code background
+   * @param holder MyViewHolder holder of my view
+   * @param colorToSet int
+   * @param isColorResource boolean
+   */
   void setCodeBackground(MyViewHolder holder, int colorToSet, boolean isColorResource) {
     Drawable background = holder.num.getBackground();
     int color = isColorResource ? ContextCompat.getColor(mContext, colorToSet) : colorToSet;
@@ -93,6 +132,12 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     }
   }
 
+  /**
+   * Called when RecyclerView needs a new RecyclerView.ViewHolder to represent an item.
+   * @param parent ViewGroup
+   * @param viewType int
+   * @return myViewHolder
+   */
   @Override
   public MyViewHolder onCreateViewHolder(final ViewGroup parent,
                                          final int viewType) {
@@ -101,14 +146,26 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     return myViewHolder;
   }
 
+  /**
+   * setOnItemClickListener callback
+   * @param callback OnItemClickCallback
+   */
   public void setOnItemClickListener(OnItemClickCallback callback) {
     this.onItemClickCallback = callback;
   }
 
+  /**
+   * OnItemClickCallback interface
+   */
   public interface OnItemClickCallback {
     void onClick(TransportTag tag);
   }
 
+  /**
+   * Put data from arrays to item
+   * @param holder MyViewHolder
+   * @param i int number of item
+   */
   @Override
   public void onBindViewHolder(final MyViewHolder holder, final int i) {
     setCodeBackground(holder,getTransportColor(vehicleMode), true);
@@ -122,6 +179,10 @@ public class StopDetailsListAdapter extends RecyclerView.Adapter<StopDetailsList
     holder.itemView.setOnClickListener(this);
   }
 
+  /**
+   * Count items in recycler view
+   * @return mNum == null ? 0: mNum.size()
+   */
   @Override
   public int getItemCount() {
     return mNum == null ? 0: mNum.size();
