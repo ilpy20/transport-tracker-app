@@ -105,9 +105,18 @@ public class Transport {
    * @param transportEvent transport subscription
    */
   public void updateFromEvent(TransportSubscription.TransportEventsInArea transportEvent) {
-    location = new LatLng(transportEvent.lat(), transportEvent.lon());
+    LatLng position;
+    try {
+
+      position =  new LatLng(transportEvent.lat(), transportEvent.lon());
+
+    } catch (NullPointerException e) {
+      position = this.location;
+    }
+    this.location = position;
     nextStop = transportEvent.nextStop();
     stop = transportEvent.stop();
+
   }
 
   /**

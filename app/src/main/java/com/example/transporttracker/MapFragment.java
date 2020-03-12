@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
@@ -148,12 +149,15 @@ public class MapFragment extends Fragment {
 
       googleMap.setMyLocationEnabled(true);
     } else {
-
-      PermissionUtils.requestPermission(
-        (MainActivity) getActivity(),
-        MY_LOCATION_REQUEST_CODE,
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        false);
+      String permission = Manifest.permission.ACCESS_FINE_LOCATION;
+      if (shouldShowRequestPermissionRationale( permission)) {
+        // Display a dialog with rationale.
+        PermissionUtils.RationaleDialog.newInstance(MY_LOCATION_REQUEST_CODE, false)
+          .show(getActivity().getSupportFragmentManager(), "dialog");
+      } else {
+        // Location permission has not been granted yet, request it.
+        requestPermissions( new String[]{permission}, MY_LOCATION_REQUEST_CODE);
+      }
     }
   }
 
@@ -171,10 +175,19 @@ public class MapFragment extends Fragment {
         permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
         grantResults[0] == PackageManager.PERMISSION_GRANTED) {
         googleMap.setMyLocationEnabled(true);
+
       } else {
-        Toast.makeText(getContext(), "Could not get location", Toast.LENGTH_SHORT);
+        // Location permission has not been granted yet, request it.
+        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_LOCATION_REQUEST_CODE);
       }
     }
+  }
+
+
+  public void enableLocation() {
+    googleMap.setMyLocationEnabled(true);
+    init();
+
   }
 
   /**
@@ -182,6 +195,9 @@ public class MapFragment extends Fragment {
    */
   void init() {
     fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+    LatLng homeDefault = new LatLng(60.206723, 24.667192);
+    googleMap.moveCamera(CameraUpdateFactory.zoomTo(14));
+    googleMap.moveCamera(CameraUpdateFactory.newLatLng(homeDefault));
     fusedLocationClient.getLastLocation().addOnSuccessListener(getActivity(), location -> {
       if (location != null) {
         LatLng home = new LatLng(location.getLatitude(), location.getLongitude());
@@ -286,8 +302,8 @@ public class MapFragment extends Fragment {
   public void focusOnTransportMarker(Transport transport) {
     Marker marker = transportMarkers.get(transport.getId());
 
-    if(marker != null) {
-      CameraUpdate center=
+    if (marker != null) {
+      CameraUpdate center =
         CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15);
       googleMap.animateCamera(center);
     }
