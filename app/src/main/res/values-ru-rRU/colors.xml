@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="busColor">#00FF00</color>
+    <color name="tramColor">#FF0000</color>
+    <color name="subwayColor">#ff6319</color>
+    <color name="trainColor">#808080</color>
+    <color name="ferryColor">#00b9e4</color>
+</resources>
