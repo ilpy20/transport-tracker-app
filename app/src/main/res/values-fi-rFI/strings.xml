@@ -5,4 +5,6 @@
     <string name="earlier">"Aikaisemmin on "</string>
     <string name="minute">" min"</string>
     <string name="delayed">"Myöhässä on "</string>
+    <string name="boarding">Nouseminen</string>
+    <string name="noBoarding">Ei lennolle pääsyä</string>
 </resources>

@@ -48,6 +48,7 @@ public class Stop {
   private static ArrayList<String> routeDelay;
   private static ArrayList<String> routeDirections;
   private static Long timeArrive;
+  private static Long timeDeparture;
   private static BigDecimal serviceDay;
 
   /**
@@ -213,22 +214,33 @@ public class Stop {
         for (int i = 0; i < nearbyRoutes.size(); i++) {
           tripId.add(nearbyRoutes.get(i).trip().gtfsId());
           routeNums.add(nearbyRoutes.get(i).trip().routeShortName());
-          routeNames.add(nearbyRoutes.get(i).headsign());
+          if(nearbyRoutes.get(i).headsign()!=null)
+            routeNames.add(nearbyRoutes.get(i).headsign());
+          else routeNames.add(context.getString(R.string.noBoarding));
           routeDirections.add(nearbyRoutes.get(i).trip().directionId());
-          nearbyRoutes.get(i).scheduledArrival();
           serviceDay = (BigDecimal) nearbyRoutes.get(i).serviceDay();
           if (nearbyRoutes.get(i).realtimeArrival() != null)
             timeArrive = Long.valueOf(nearbyRoutes.get(i).realtimeArrival());
           else timeArrive = Long.valueOf(nearbyRoutes.get(i).scheduledArrival());
-          routeTime.add((timeArrive + serviceDay.longValue() - unixTime) / 60 + context.getString(R.string.minute));
-          if (nearbyRoutes.get(i).arrivalDelay() > 0)
-            routeDelay.add(context.getString(R.string.delayed) + nearbyRoutes.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
-          else if (nearbyRoutes.get(i).arrivalDelay() < 0)
-            routeDelay.add(context.getString(R.string.earlier) + -nearbyRoutes.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
-
-          else routeDelay.add(context.getString(R.string.onTime));
-          nearbyRoutes.get(i).scheduledDeparture();
-          nearbyRoutes.get(i).realtimeDeparture();
+          if (nearbyRoutes.get(i).realtimeDeparture()!=null)
+            timeDeparture = Long.valueOf(nearbyRoutes.get(i).realtimeDeparture());
+          else timeDeparture = Long.valueOf(nearbyRoutes.get(i).scheduledDeparture());
+          if(timeArrive+serviceDay.longValue()>=unixTime){
+            routeTime.add((timeArrive + serviceDay.longValue() - unixTime) / 60 + context.getString(R.string.minute));
+            if (nearbyRoutes.get(i).arrivalDelay() > 0)
+              routeDelay.add(context.getString(R.string.delayed) + nearbyRoutes.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
+            else if (nearbyRoutes.get(i).arrivalDelay() < 0)
+              routeDelay.add(context.getString(R.string.earlier) + -nearbyRoutes.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
+            else routeDelay.add(context.getString(R.string.onTime));
+          }
+          else {
+            routeTime.add(context.getString(R.string.boarding));
+            if (nearbyRoutes.get(i).departureDelay() > 0)
+              routeDelay.add(context.getString(R.string.delayed) + nearbyRoutes.get(i).departureDelay() / 60 + context.getString(R.string.minute));
+            else if (nearbyRoutes.get(i).departureDelay() < 0)
+              routeDelay.add(context.getString(R.string.earlier) + -nearbyRoutes.get(i).departureDelay() / 60 + context.getString(R.string.minute));
+            else routeDelay.add(context.getString(R.string.onTime));
+          }
 
         }
         callback.onStop(data);

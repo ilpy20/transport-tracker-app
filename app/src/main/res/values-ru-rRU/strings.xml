@@ -5,4 +5,6 @@
     <string name="delayed">"Опаздывает на "</string>
     <string name="earlier">"Раньше на "</string>
     <string name="onTime">Вовремя</string>
+    <string name="boarding">Посадка</string>
+    <string name="noBoarding">Посадки нет</string>
 </resources>

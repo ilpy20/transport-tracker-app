@@ -5,4 +5,6 @@
     <string name="minute">" min"</string>
     <string name="earlier">Tidigare</string>
     <string name="onTime">I tid</string>
+    <string name="boarding">Boarding</string>
+    <string name="noBoarding">Ingen ombordstigning</string>
 </resources>

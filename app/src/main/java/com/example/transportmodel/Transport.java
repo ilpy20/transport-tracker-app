@@ -49,6 +49,7 @@ public class Transport {
   private static ArrayList<String> routeTime;
   private static ArrayList<String> routeDelay;
   private static Long timeArrive;
+  private static Long timeDeparture;
   private static Long serviceDay;
   private LatLng location;
 
@@ -329,19 +330,33 @@ public class Transport {
             if (routeList.get(i).realtimeArrival() != null)
               timeArrive = Long.valueOf(routeList.get(i).realtimeArrival());
             else timeArrive = Long.valueOf(routeList.get(i).scheduledArrival());
-            if (timeArrive + serviceDay >= unixTime) {
+            if (routeList.get(i).realtimeDeparture()!=null)
+              timeDeparture = Long.valueOf(routeList.get(i).realtimeDeparture());
+            else timeDeparture = Long.valueOf(routeList.get(i).scheduledDeparture());
+            if (timeDeparture + serviceDay >= unixTime) {
               stopId.add(routeList.get(i).stop().gtfsId());
               stopNames.add(routeList.get(i).stop().name());
               stopCodes.add(routeList.get(i).stop().code());
               stopZones.add(routeList.get(i).stop().zoneId());
               platformCodes.add(routeList.get(i).stop().platformCode());
-              routeTime.add((timeArrive + serviceDay - unixTime) / 60 + context.getString(R.string.minute));
+              if(timeArrive+serviceDay>=unixTime){
+                routeTime.add((timeArrive + serviceDay - unixTime) / 60 + context.getString(R.string.minute));
+                if (routeList.get(i).arrivalDelay() > 0)
+                  routeDelay.add(context.getString(R.string.delayed) + routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
+                else if (routeList.get(i).arrivalDelay() < 0)
+                  routeDelay.add(context.getString(R.string.earlier) + -routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
+                else routeDelay.add(context.getString(R.string.onTime));
+              }
+              else {
+                routeTime.add(context.getString(R.string.boarding));
+                if (routeList.get(i).departureDelay() > 0)
+                  routeDelay.add(context.getString(R.string.delayed) + routeList.get(i).departureDelay() / 60 + context.getString(R.string.minute));
+                else if (routeList.get(i).departureDelay() < 0)
+                  routeDelay.add(context.getString(R.string.earlier) + -routeList.get(i).departureDelay() / 60 + context.getString(R.string.minute));
+                else routeDelay.add(context.getString(R.string.onTime));
+              }
               //else routeTime.add(Long.toString((unixTime-timeArrive-serviceDay)/60)+" min"+" ago");
-              if (routeList.get(i).arrivalDelay() > 0)
-                routeDelay.add(context.getString(R.string.delayed) + routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
-              else if (routeList.get(i).arrivalDelay() < 0)
-                routeDelay.add(context.getString(R.string.earlier) + -routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
-              else routeDelay.add(context.getString(R.string.onTime));
+
             }
           }
         }
@@ -396,19 +411,31 @@ public class Transport {
             if (routeList.get(i).realtimeArrival() != null)
               timeArrive = Long.valueOf(routeList.get(i).realtimeArrival());
             else timeArrive = Long.valueOf(routeList.get(i).scheduledArrival());
-            if (timeArrive + serviceDay >= unixTime) {
+            if (routeList.get(i).realtimeDeparture()!=null)
+              timeDeparture = Long.valueOf(routeList.get(i).realtimeDeparture());
+            else timeDeparture = Long.valueOf(routeList.get(i).scheduledDeparture());
+            if (timeDeparture + serviceDay >= unixTime) {
               stopId.add(routeList.get(i).stop().gtfsId());
               stopNames.add(routeList.get(i).stop().name());
               stopCodes.add(routeList.get(i).stop().code());
               stopZones.add(routeList.get(i).stop().zoneId());
               platformCodes.add(routeList.get(i).stop().platformCode());
-              routeTime.add((timeArrive + serviceDay - unixTime) / 60 + context.getString(R.string.minute));
-              //else routeTime.add(Long.toString((unixTime-timeArrive-serviceDay)/60)+" min"+" ago");
-              if (routeList.get(i).arrivalDelay() > 0)
-                routeDelay.add(context.getString(R.string.delayed) + routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
-              else if (routeList.get(i).arrivalDelay() < 0)
-                routeDelay.add(context.getString(R.string.earlier) + -routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
-              else routeDelay.add(context.getString(R.string.onTime));
+              if(timeArrive+serviceDay>=unixTime){
+                routeTime.add((timeArrive + serviceDay - unixTime) / 60 + context.getString(R.string.minute));
+                if (routeList.get(i).arrivalDelay() > 0)
+                  routeDelay.add(context.getString(R.string.delayed) + routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
+                else if (routeList.get(i).arrivalDelay() < 0)
+                  routeDelay.add(context.getString(R.string.earlier) + -routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
+                else routeDelay.add(context.getString(R.string.onTime));
+              }
+              else {
+                routeTime.add(context.getString(R.string.boarding));
+                if (routeList.get(i).departureDelay() > 0)
+                  routeDelay.add(context.getString(R.string.delayed) + routeList.get(i).departureDelay() / 60 + context.getString(R.string.minute));
+                else if (routeList.get(i).departureDelay() < 0)
+                  routeDelay.add(context.getString(R.string.earlier) + -routeList.get(i).departureDelay() / 60 + context.getString(R.string.minute));
+                else routeDelay.add(context.getString(R.string.onTime));
+              }
             }
           }
         }

@@ -344,9 +344,9 @@ public class MainActivity extends AppCompatActivity
             public void onError(@NotNull ApolloException e) {
             }
           }, getApplicationContext());
-        handler.postDelayed(this, 5000);
+        handler.postDelayed(this, 1000);
       }
-    }, 1000);
+    }, 100);
 
 
   }
@@ -444,9 +444,9 @@ public class MainActivity extends AppCompatActivity
           public void onError(@NotNull ApolloException e) {
           }
         }, getApplicationContext());
-        handler.postDelayed(this, 5000);
+        handler.postDelayed(this, 1000);
       }
-    }, 1000);
+    }, 100);
 
   }
 

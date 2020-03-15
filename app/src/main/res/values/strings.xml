@@ -10,5 +10,7 @@
     <string name="minute">" min"</string>
     <string name="earlier">"Earlier "</string>
     <string name="onTime">On time</string>
+    <string name="boarding">Boarding</string>
+    <string name="noBoarding">No boarding</string>
 
 </resources>
