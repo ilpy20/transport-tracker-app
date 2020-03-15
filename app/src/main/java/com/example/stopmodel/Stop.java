@@ -1,11 +1,15 @@
 package com.example.stopmodel;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.example.network.Networking;
+import com.example.transporttracker.R;
 import com.google.android.gms.maps.model.LatLng;
 import com.hsl.StopDetailsQuery;
 import com.hsl.StopsQuery;
@@ -187,7 +191,7 @@ public class Stop {
    * @param stopDetailsQuery query of stop details
    * @param callback Apollo callback
    */
-  private static void makeStopDetailsQuery(StopDetailsQuery stopDetailsQuery, final Callback callback) {
+  private static void makeStopDetailsQuery(StopDetailsQuery stopDetailsQuery, final Callback callback, Context context) {
     Networking.apollo().query(stopDetailsQuery).enqueue(new ApolloCall.Callback<StopDetailsQuery.Data>() {
       /**
        * Gets called when GraphQL response is received and parsed successfully.
@@ -216,13 +220,13 @@ public class Stop {
           if (nearbyRoutes.get(i).realtimeArrival() != null)
             timeArrive = Long.valueOf(nearbyRoutes.get(i).realtimeArrival());
           else timeArrive = Long.valueOf(nearbyRoutes.get(i).scheduledArrival());
-          routeTime.add(Long.toString((timeArrive + serviceDay.longValue() - unixTime) / 60) + " min");
+          routeTime.add((timeArrive + serviceDay.longValue() - unixTime) / 60 + context.getString(R.string.minute));
           if (nearbyRoutes.get(i).arrivalDelay() > 0)
-            routeDelay.add("Delayed " + Integer.toString(nearbyRoutes.get(i).arrivalDelay() / 60) + " min");
+            routeDelay.add(context.getString(R.string.delayed) + nearbyRoutes.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
           else if (nearbyRoutes.get(i).arrivalDelay() < 0)
-            routeDelay.add("Earlier " + Integer.toString(-nearbyRoutes.get(i).arrivalDelay() / 60) + " min");
+            routeDelay.add(context.getString(R.string.earlier) + -nearbyRoutes.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
 
-          else routeDelay.add("On time");
+          else routeDelay.add(context.getString(R.string.onTime));
           nearbyRoutes.get(i).scheduledDeparture();
           nearbyRoutes.get(i).realtimeDeparture();
 
@@ -246,8 +250,8 @@ public class Stop {
    * @param id gtfs id of the stop
    * @param callback callback
    */
-  public static void makeStop(String id, Callback callback) {
-    makeStopDetailsQuery(initializeQuery(id), callback);
+  public static void makeStop(String id, Callback callback, Context context) {
+    makeStopDetailsQuery(initializeQuery(id), callback, context);
   }
 
 

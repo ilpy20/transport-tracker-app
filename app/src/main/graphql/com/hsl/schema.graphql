@@ -15,7 +15,7 @@ query Stops($minLat:Float!, $minLon:Float!, $maxLat:Float!, $maxLon:Float!) {
     }
 }
 
-    query StopDetails($id:String!) {
+query StopDetails($id:String!) {
     stop(id: $id) {
         name
         code

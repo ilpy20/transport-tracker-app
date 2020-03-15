@@ -343,7 +343,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onError(@NotNull ApolloException e) {
             }
-          });
+          }, getApplicationContext());
         handler.postDelayed(this, 5000);
       }
     }, 1000);
@@ -443,7 +443,7 @@ public class MainActivity extends AppCompatActivity
           @Override
           public void onError(@NotNull ApolloException e) {
           }
-        });
+        }, getApplicationContext());
         handler.postDelayed(this, 5000);
       }
     }, 1000);

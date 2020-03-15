@@ -1,11 +1,14 @@
 package com.example.transportmodel;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.example.network.Networking;
+import com.example.transporttracker.R;
 import com.google.android.gms.maps.model.LatLng;
 import com.hsl.TransportDetailsFromMapQuery;
 import com.hsl.TransportDetailsFromStopQuery;
@@ -291,7 +294,7 @@ public class Transport {
    * @param transportDetailsQuery query of transport details from map
    * @param callback Apollo callback
    */
-  public static void makeTransportDetailsFromMapQuery(TransportDetailsFromMapQuery transportDetailsQuery, Callback callback){
+  public static void makeTransportDetailsFromMapQuery(TransportDetailsFromMapQuery transportDetailsQuery, Callback callback, Context context){
     Networking.apollo().query(transportDetailsQuery).enqueue(new ApolloCall.Callback<TransportDetailsFromMapQuery.Data>() {
       /**
        * Gets called when GraphQL response is received and parsed successfully.
@@ -332,13 +335,13 @@ public class Transport {
               stopCodes.add(routeList.get(i).stop().code());
               stopZones.add(routeList.get(i).stop().zoneId());
               platformCodes.add(routeList.get(i).stop().platformCode());
-              routeTime.add(Long.toString((timeArrive + serviceDay - unixTime) / 60) + " min");
+              routeTime.add((timeArrive + serviceDay - unixTime) / 60 + context.getString(R.string.minute));
               //else routeTime.add(Long.toString((unixTime-timeArrive-serviceDay)/60)+" min"+" ago");
               if (routeList.get(i).arrivalDelay() > 0)
-                routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60) + " min");
+                routeDelay.add(context.getString(R.string.delayed) + routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
               else if (routeList.get(i).arrivalDelay() < 0)
-                routeDelay.add("Earlier " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
-              else routeDelay.add("On time");
+                routeDelay.add(context.getString(R.string.earlier) + -routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
+              else routeDelay.add(context.getString(R.string.onTime));
             }
           }
         }
@@ -359,7 +362,7 @@ public class Transport {
    * @param transportDetailsQuery query of transport details from stop
    * @param callback Apollo callback
    */
-  public static void makeTransportDetailsFromStopQuery(TransportDetailsFromStopQuery transportDetailsQuery, Callback callback){
+  public static void makeTransportDetailsFromStopQuery(TransportDetailsFromStopQuery transportDetailsQuery, Callback callback, Context context){
     Networking.apollo().query(transportDetailsQuery).enqueue(new ApolloCall.Callback<TransportDetailsFromStopQuery.Data>() {
       /**
        * Gets called when GraphQL response is received and parsed successfully.
@@ -399,13 +402,13 @@ public class Transport {
               stopCodes.add(routeList.get(i).stop().code());
               stopZones.add(routeList.get(i).stop().zoneId());
               platformCodes.add(routeList.get(i).stop().platformCode());
-              routeTime.add(Long.toString((timeArrive + serviceDay - unixTime) / 60) + " min");
+              routeTime.add((timeArrive + serviceDay - unixTime) / 60 + context.getString(R.string.minute));
               //else routeTime.add(Long.toString((unixTime-timeArrive-serviceDay)/60)+" min"+" ago");
               if (routeList.get(i).arrivalDelay() > 0)
-                routeDelay.add("Delayed " + Integer.toString(routeList.get(i).arrivalDelay() / 60) + " min");
+                routeDelay.add(context.getString(R.string.delayed) + routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
               else if (routeList.get(i).arrivalDelay() < 0)
-                routeDelay.add("Earlier " + Integer.toString(-routeList.get(i).arrivalDelay() / 60) + " min");
-              else routeDelay.add("On time");
+                routeDelay.add(context.getString(R.string.earlier) + -routeList.get(i).arrivalDelay() / 60 + context.getString(R.string.minute));
+              else routeDelay.add(context.getString(R.string.onTime));
             }
           }
         }
@@ -426,8 +429,8 @@ public class Transport {
    * @param id id of the transport
    * @param callback callback
    */
-  public static void getTransportDetailsFromStop(String id, Callback callback){
-    makeTransportDetailsFromStopQuery(initializeQueryFromStop(id),callback);
+  public static void getTransportDetailsFromStop(String id, Callback callback, Context context){
+    makeTransportDetailsFromStopQuery(initializeQueryFromStop(id),callback, context);
   }
 
   /**
@@ -438,8 +441,8 @@ public class Transport {
    * @param time start of the trip
    * @param callback callback
    */
-  public static void getTransportDetailsFromMap(String date, int dir, String route, int time, Callback callback){
-    makeTransportDetailsFromMapQuery(initializeQueryFromMap(date,dir,route,time),callback);
+  public static void getTransportDetailsFromMap(String date, int dir, String route, int time, Callback callback, Context context){
+    makeTransportDetailsFromMapQuery(initializeQueryFromMap(date,dir,route,time),callback, context);
   }
 
   /**

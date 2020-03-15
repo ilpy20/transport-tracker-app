@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Transport Tracker</string>
+    <string name="onTime">"Ajallaan "</string>
+    <string name="earlier">"Aikaisemmin on "</string>
+    <string name="minute">" min"</string>
+    <string name="delayed">"Myöhässä on "</string>
+</resources>

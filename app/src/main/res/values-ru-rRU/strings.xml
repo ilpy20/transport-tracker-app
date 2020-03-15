@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Transport Tracker</string>
+    <string name="minute">" мин"</string>
+    <string name="delayed">"Опаздывает на "</string>
+    <string name="earlier">"Раньше на "</string>
+    <string name="onTime">Вовремя</string>
+</resources>
